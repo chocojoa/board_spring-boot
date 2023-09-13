@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lollipop.board.board.mapper.BoardMapper">
+
+    <!-- 게시판 목록 개수 조회 -->
+    <select id="selectBoardCount" parameterType="boardParam" resultType="java.lang.Integer">
+        SELECT COUNT(B.BOARD_ID) AS totalCount
+          FROM BOARD B
+        <where>
+            <if test="category != null and category != ''">
+                AND B.CATEGORY = #{category}
+            </if>
+            <if test="title != null and title != ''">
+                AND B.TITLE LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="userName != null and userName != ''">
+                AND B.CREATED_BY LIKE CONCAT('%', #{userName}, '%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 게시판 목록 조회 -->
+    <select id="selectBoardList" parameterType="boardParam" resultType="boardDTO">
+        SELECT ROW_NUMBER() OVER(PARTITION BY B.CATEGORY ORDER BY B.BOARD_ID)   AS rowNumber
+             , B.BOARD_ID           AS boardId
+             , B.TITLE              AS title
+             , B.VIEW_COUNT         AS viewCount
+             , BC.COMMENT_COUNT     AS commentCount
+             , U.USER_ID            AS userId
+             , U.USER_NAME          AS userName
+             , IF(B.CREATED_AT >= CURRENT_DATE, DATE_FORMAT(B.CREATED_AT, '%H:%i:%s')
+                ,DATE_FORMAT(B.CREATED_AT, '%Y-%m-%d')) AS createdDate
+          FROM BOARD B
+          LEFT JOIN USER U ON B.CREATED_BY = U.USER_ID
+          LEFT JOIN (
+                     SELECT BOARD_ID
+                          , COUNT(COMMENT_ID) AS COMMENT_COUNT
+                       FROM BOARD_COMMENT
+                      GROUP BY BOARD_ID
+                     ) BC ON B.BOARD_ID = BC.BOARD_ID
+        <where>
+            <if test="category != null and category != ''">
+                AND B.CATEGORY = #{category}
+            </if>
+            <if test="title != null and title != ''">
+                AND B.TITLE LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="userName != null and userName != ''">
+                AND B.CREATED_BY LIKE CONCAT('%', #{userName}, '%')
+            </if>
+        </where>
+        <if test="order != null">
+            ORDER BY
+            <foreach collection="order" item="item" separator=",">
+                ${item.column} ${item.dir}
+            </foreach>
+        </if>
+        <if test="start > 0 and length > 0">
+            LIMIT #{start}, #{length}
+        </if>
+    </select>
+
+    <!-- 게시판 정보 조회 -->
+    <select id="selectBoard" parameterType="boardParam" resultType="boardDTO">
+        SELECT B.BOARD_ID       AS boardId
+             , B.TITLE          AS title
+             , B.CONTENT        AS content
+             , B.VIEW_COUNT     AS viewCount
+             , B.CREATED_BY     AS author
+             , DATE_FORMAT(B.CREATED_AT, '%Y-%m-%d %H:%i:%s')  AS createdDate
+          FROM BOARD B
+         WHERE B.BOARD_ID = #{boardId}
+    </select>
+
+    <!-- 게시판 정보 저장 -->
+    <insert id="insertBoard" parameterType="boardDTO" useGeneratedKeys="true" keyProperty="boardId">
+        INSERT INTO BOARD (
+                  CATEGORY
+                , TITLE
+                , CONTENT
+                , VIEW_COUNT
+                , CREATED_BY
+            ) VALUES (
+                  #{category}
+                , #{title}
+                , #{content}
+                , 0
+                , #{userId}
+            )
+    </insert>
+
+    <!-- 게시판 정보 수정 -->
+    <update id="updateBoard" parameterType="boardDTO">
+        UPDATE BOARD
+        <set>
+            <if test="title != null and title != ''">
+                TITLE = #{title},
+            </if>
+            <if test="content != null and content != ''">
+                CONTENT = #{content},
+            </if>
+            MODIFIED_BY = #{userId},
+            MODIFIED_AT = NOW()
+        </set>
+        WHERE BOARD_ID = #{boardId}
+    </update>
+
+    <!-- 댓글 목록 조회 -->
+    <select id="selectCommentList" parameterType="boardParam" resultType="commentDTO">
+        WITH RECURSIVE CTE AS (
+            SELECT BC.COMMENT_ID
+                 , BC.CONTENT
+                 , BC.PARENT_COMMENT_ID
+                 , BC.BOARD_ID
+                 , BC.CREATED_BY
+                 , BC.CREATED_AT
+                 , BC.COMMENT_ID AS GROUP_ID
+                 , 0 AS STEP
+              FROM BOARD_COMMENT BC
+             WHERE BC.PARENT_COMMENT_ID = 0
+               AND BC.BOARD_ID = #{boardId}
+             UNION ALL
+            SELECT BC2.COMMENT_ID
+                 , BC2.CONTENT
+                 , BC2.PARENT_COMMENT_ID
+                 , BC2.BOARD_ID
+                 , BC2.CREATED_BY
+                 , BC2.CREATED_AT
+                 , CTE.COMMENT_ID AS GROUP_ID
+                 , CTE.STEP + 1 AS STEP
+              FROM BOARD_COMMENT BC2
+             INNER JOIN CTE ON BC2.PARENT_COMMENT_ID = CTE.COMMENT_ID
+             WHERE BC2.BOARD_ID = #{boardId}
+        )
+        SELECT C.COMMENT_ID         AS commentId
+             , C.CONTENT            AS content
+             , C.PARENT_COMMENT_ID  AS parentCommentId
+             , C.STEP               AS step
+             , C.BOARD_ID           AS boardId
+             , U.USER_NAME          AS userName
+             , U.EMAIL              AS email
+             , DATE_FORMAT(C.CREATED_AT, '%Y-%m-%d %H:%i:%s')  AS createdDate
+          FROM CTE C
+          LEFT JOIN USER U ON C.CREATED_BY = U.USER_ID
+         ORDER BY C.GROUP_ID, C.COMMENT_ID
+    </select>
+
+    <!-- 댓글 정보 저장 -->
+    <insert id="insertComment" parameterType="commentDTO">
+        INSERT INTO BOARD_COMMENT (
+                  CONTENT
+                , PARENT_COMMENT_ID
+                , BOARD_ID
+                , CREATED_BY
+            ) VALUES (
+                  #{content}
+                , #{parentCommentId}
+                , #{boardId}
+                , #{userId}
+            )
+    </insert>
+
+</mapper>
