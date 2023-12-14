@@ -1,13 +1,13 @@
 package com.lollipop.board.user.model;
 
 import com.lollipop.board.common.model.DataTableDTO;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.apache.ibatis.type.Alias;
 
-@Data
+@Getter
+@Setter
+@Builder
 @Alias("userParam")
-@EqualsAndHashCode(callSuper = false)
 public class UserParam extends DataTableDTO {
 
     private int userId;

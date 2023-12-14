@@ -2,13 +2,17 @@ mybatis:
   config-location: classpath:/mybatis/mybatis-config.xml
   mapper-locations: classpath:/mybatis/mapper/**/*.xml
   type-aliases-package: com.lollipop.board
+jwt:
+  secret: 96423523c3bfa827b61396c063edcc6c84c957ec9ab76759dcc57c247c77f10e
+  accessTokenExpirationMs: 3600000
+  refreshTokenExpirationMs: 86400000
 spring:
   datasource:
     driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     url: jdbc:log4jdbc:mysql://localhost:3306/board?useSSL=false&allowPublicKeyRetrieval=true
     username: lollipop
     password: '!qwer1234'
-jwt:
-  secret: 96423523c3bfa827b61396c063edcc6c84c957ec9ab76759dcc57c247c77f10e
-  expirationMs: 3600000
-  refreshExpirationMs: 86400000
+  data:
+    redis:
+      host: localhost
+      port: 6379

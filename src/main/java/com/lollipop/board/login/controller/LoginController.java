@@ -1,6 +1,5 @@
 package com.lollipop.board.login.controller;
 
-import com.lollipop.board.jwt.JwtToken;
 import com.lollipop.board.login.model.LoginDTO;
 import com.lollipop.board.login.model.LoginParam;
 import com.lollipop.board.login.service.LoginService;
@@ -9,13 +8,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class LoginController {
 
     private final LoginService loginService;

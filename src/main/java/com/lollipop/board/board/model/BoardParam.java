@@ -1,13 +1,13 @@
 package com.lollipop.board.board.model;
 
 import com.lollipop.board.common.model.DataTableDTO;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.apache.ibatis.type.Alias;
 
-@Data
+@Getter
+@Setter
+@ToString
 @Alias("boardParam")
-@EqualsAndHashCode(callSuper = false)
 public class BoardParam extends DataTableDTO {
 
     private int boardId;

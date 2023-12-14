@@ -18,22 +18,24 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
-
     private final UserMapper userMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserParam userParam = new UserParam();
-        userParam.setEmail(username);
+        UserParam userParam = UserParam.builder().email(username).build();
         UserDTO user = userMapper.selectUserByEmail(userParam);
-
 
         if (user != null) {
             return createUserDetails(user);
         } else {
-            log.error("can not find User : {}", username);
-            throw new UsernameNotFoundException("can not find User : " + username);
+            String errorMessage = getNotFoundExceptionMessage(username);
+            log.error(errorMessage);
+            throw new UsernameNotFoundException(errorMessage);
         }
+    }
+
+    private String getNotFoundExceptionMessage(String username) {
+        return "Cannot find user: " + username;
     }
 
     private UserDetails createUserDetails(UserDTO userDTO) {

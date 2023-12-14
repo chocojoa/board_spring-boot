@@ -8,7 +8,6 @@ import com.lollipop.board.user.mapper.UserMapper;
 import com.lollipop.board.user.model.UserDTO;
 import com.lollipop.board.user.model.UserParam;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -34,8 +33,7 @@ public class LoginService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         JwtToken token = jwtTokenProvider.generateToken(authentication);
 
-        UserParam userParam = new UserParam();
-        userParam.setEmail(loginParam.getEmail());
+        UserParam userParam = UserParam.builder().email(loginParam.getEmail()).build();
         UserDTO user = userMapper.selectUserByEmail(userParam);
         return LoginDTO.builder().token(token).user(user).build();
     }
