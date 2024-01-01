@@ -1,4 +1,4 @@
-package com.lollipop.board.config;
+package com.lollipop.board.redis.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

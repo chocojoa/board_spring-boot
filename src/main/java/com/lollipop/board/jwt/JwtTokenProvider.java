@@ -14,9 +14,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,26 +29,38 @@ public class JwtTokenProvider {
     @Value("${jwt.refreshTokenExpirationMs}")
     private long refreshTokenExpirationTime;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
-        this.key = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+    public JwtTokenProvider(@Value("${jwt.secretKey}") String secretKey) {
+        this.key = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS512.key().build().getAlgorithm());
     }
 
-    public JwtToken generateToken(Authentication authentication) {
-        var authorities = getAuthoritiesString(authentication);
-        String accessToken = generateTokenWithClaims(authentication.getName(), authorities, accessTokenExpirationTime);
+    public String generateAccessToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", "USER");
+        return createToken(claims, userDetails.getUsername(), accessTokenExpirationTime);
+    }
 
-        String refreshToken = generateTokenWithClaims(null, null, refreshTokenExpirationTime);
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", "USER");
+        return createToken(claims, userDetails.getUsername(), refreshTokenExpirationTime);
+    }
 
-        return JwtToken.builder()
-                .grantType("Bearer")
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+    private String createToken(Map<String, Object> claims, String subject, long expiration) {
+        Date now = new Date();
+        Date validity = new Date(System.currentTimeMillis() + expiration);
+
+        return Jwts.builder()
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(now)
+                .expiration(validity)
+                .signWith(key)
+                .compact();
     }
 
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
-        var authorities = getAuthoritiesCollection(claims.get("auth"));
+        Collection<? extends GrantedAuthority> authorities = getAuthoritiesCollection(claims.get("role"));
 
         UserDetails principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
@@ -72,7 +82,17 @@ public class JwtTokenProvider {
         return false;
     }
 
-    private Claims parseClaims(String accessToken) {
+    public String extractUsername(String token) {
+        Claims claims = parseClaims(token);
+        return claims.getSubject();
+    }
+    
+    public Collection<? extends GrantedAuthority> extractAuth(String token) {
+        Claims claims = parseClaims(token);
+        return getAuthoritiesCollection(claims.get("role"));
+    }
+
+    public Claims parseClaims(String accessToken) {
         try {
             return Jwts.parser().verifyWith(key).build().parseSignedClaims(accessToken).getPayload();
         } catch (ExpiredJwtException e) {
@@ -80,29 +100,7 @@ public class JwtTokenProvider {
         }
     }
 
-    private String generateTokenWithClaims(String subject, String claim, long expirationTime) {
-        var jwtBuilder = Jwts.builder()
-                .expiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(key);
-
-        if (subject != null) {
-            jwtBuilder.subject(subject);
-        }
-
-        if (claim != null) {
-            jwtBuilder.claim("auth", claim);
-        }
-
-        return jwtBuilder.compact();
-    }
-
-    private String getAuthoritiesString(Authentication authentication) {
-        return authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-    }
-
-    private Collection<? extends GrantedAuthority> getAuthoritiesCollection(Object claim) {
+    public Collection<? extends GrantedAuthority> getAuthoritiesCollection(Object claim) {
         if (claim == null) {
             throw new IllegalArgumentException("권한 정보가 없는 토큰 입니다.");
         }
@@ -111,6 +109,5 @@ public class JwtTokenProvider {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
-
 }
 

@@ -36,11 +36,11 @@ public class WebSecurityConfig {
 
         http.formLogin(AbstractHttpConfigurer::disable);
 
-        var httpSecurity = http.authorizeHttpRequests(requests -> requests
+        HttpSecurity httpSecurity = http.authorizeHttpRequests(requests -> requests
                 .requestMatchers("/", "/static/**", "/api/auth/**").permitAll()
                 .anyRequest().authenticated());
 
-        var exceptionHandling = httpSecurity.exceptionHandling(exceptionHandlingConfigurer -> exceptionHandlingConfigurer
+        HttpSecurity exceptionHandling = httpSecurity.exceptionHandling(exceptionHandlingConfigurer -> exceptionHandlingConfigurer
                 .accessDeniedHandler(jwtAccessDeniedHandler)
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint));
 

@@ -31,6 +31,13 @@ public interface UserMapper {
     UserDTO selectUser(UserParam userParam);
 
     /**
+     * 이메일주소로 사용자 정보 조회
+     * @param userParam
+     * @return
+     */
+    UserDTO selectUserByEmail(UserParam userParam);
+
+    /**
      * 사용자 정보 저장
      * @param userDTO
      * @return
@@ -43,7 +50,5 @@ public interface UserMapper {
      * @return
      */
     int updateUser(UserDTO userDTO);
-
-    UserDTO selectUserByEmail(UserParam userParam);
 
 }

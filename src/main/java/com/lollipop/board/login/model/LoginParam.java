@@ -14,4 +14,6 @@ public class LoginParam {
     private String email;
 
     private String password;
+
+    private String refreshToken;
 }

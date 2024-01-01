@@ -1,10 +1,10 @@
 package com.lollipop.board.login.controller;
 
+import com.lollipop.board.jwt.JwtTokenProvider;
 import com.lollipop.board.login.model.LoginDTO;
 import com.lollipop.board.login.model.LoginParam;
 import com.lollipop.board.login.service.LoginService;
 import com.lollipop.board.user.model.UserDTO;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +17,16 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
 
     private final LoginService loginService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginDTO> login(@RequestBody @Valid LoginParam loginParam) {
-        LoginDTO loginDTO = loginService.login(loginParam);
-        return ResponseEntity.ok().body(loginDTO);
+    public ResponseEntity<?> login(@RequestBody LoginParam loginParam) {
+        return loginService.login(loginParam);
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<?> refreshToken(@RequestBody LoginParam loginParam) {
+        return loginService.reissue(loginParam);
     }
 
     @PostMapping("/signUp")

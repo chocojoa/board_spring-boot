@@ -69,6 +69,16 @@
         </where>
     </select>
 
+    <!-- 이메일 주소로 사용자 정보 조회 -->
+    <select id="selectUserByEmail" parameterType="userParam" resultType="userDTO">
+        SELECT USER_ID      AS userId
+             , USER_NAME    AS userName
+             , EMAIL        AS email
+             , PASSWORD     AS password
+          FROM USER
+         WHERE EMAIL = #{email}
+    </select>
+
     <!-- 사용자 정보 저장 -->
     <insert id="insertUser" parameterType="userDTO">
         INSERT INTO USER (
@@ -102,15 +112,5 @@
         </set>
         WHERE USER_ID = #{userId}
     </update>
-
-    <!-- 이메일 주소로 사용자 정보 조회 -->
-    <select id="selectUserByEmail" parameterType="userParam" resultType="userDTO">
-        SELECT USER_ID      AS userId
-             , USER_NAME    AS userName
-             , EMAIL        AS email
-             , PASSWORD     AS password
-          FROM USER
-         WHERE EMAIL = #{email}
-    </select>
 
 </mapper>
