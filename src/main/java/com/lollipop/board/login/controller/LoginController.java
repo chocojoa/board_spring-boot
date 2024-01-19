@@ -30,9 +30,8 @@ public class LoginController {
     }
 
     @PostMapping("/signUp")
-    public ResponseEntity<String> signUp(@RequestBody UserDTO userDTO){
-        loginService.signUp(userDTO);
-        return ResponseEntity.ok().body(null);
+    public ResponseEntity<?> signUp(@RequestBody UserDTO userDTO){
+        return loginService.signUp(userDTO);
     }
 
 }

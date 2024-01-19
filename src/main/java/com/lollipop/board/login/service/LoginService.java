@@ -9,6 +9,7 @@ import com.lollipop.board.user.mapper.UserMapper;
 import com.lollipop.board.user.model.UserDTO;
 import com.lollipop.board.user.model.UserParam;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoginService {
@@ -57,7 +61,7 @@ public class LoginService {
         try {
             String refreshToken = loginParam.getRefreshToken();
 
-            if (jwtTokenProvider.validateToken(refreshToken)) {
+            if (validateRefreshToken(refreshToken)) {
                 String username = jwtTokenProvider.extractUsername(refreshToken);
 
                 UserParam userParam = UserParam.builder().email(username).build();
@@ -76,9 +80,28 @@ public class LoginService {
         }
     }
 
-    public void signUp(UserDTO userDTO) {
-        userDTO.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
-        userMapper.insertUser(userDTO);
+    public ResponseEntity<?> signUp(UserDTO userDTO) {
+        try {
+            UserParam userParam = UserParam.builder().email(userDTO.getEmail()).build();
+            UserDTO user = userMapper.selectUserByEmail(userParam);
+
+            boolean status = false;
+            String message = "이미 등록된 계정이 있습니다.";
+
+            if(user == null) {
+                userDTO.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
+                userMapper.insertUser(userDTO);
+
+                status = true;
+                message = "계정이 생성되었습니다.";
+            }
+            Map<String, Object> result = new HashMap<>();
+            result.put("status", status);
+            result.put("message", message);
+            return ResponseEntity.ok().body(result);
+        } catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     private LoginDTO getToken(UserDetails userDetails) {
@@ -88,12 +111,24 @@ public class LoginService {
 
         JwtToken token = JwtToken.builder().grantType("Bearer").accessToken(accessToken).refreshToken(refreshToken).build();
 
-        redisDAO.setValues(userDetails.getUsername(), refreshToken, Duration.ofMillis(refreshTokenExpirationTime));
+        redisDAO.setValues(refreshToken, userDetails.getUsername(), Duration.ofMillis(refreshTokenExpirationTime));
 
         UserParam userParam = UserParam.builder().email(userDetails.getUsername()).build();
         UserDTO user = userMapper.selectUserByEmail(userParam);
 
         return LoginDTO.builder().token(token).user(user).build();
+    }
+
+    public boolean validateRefreshToken(String token) {
+        try {
+            String username = jwtTokenProvider.extractUsername(token);
+            // Redis에서 Refresh Token 검증
+            String storedUsername = redisDAO.getValues(token);
+            return username.equals(storedUsername);
+        } catch (Exception e) {
+            log.info("validateRefreshToken error : " + e);
+            return false;
+        }
     }
 
 }

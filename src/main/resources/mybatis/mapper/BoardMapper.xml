@@ -56,7 +56,7 @@
                 ${item.column} ${item.dir}
             </foreach>
         </if>
-        <if test="start > 0 and length > 0">
+        <if test="length > 0">
             LIMIT #{start}, #{length}
         </if>
     </select>

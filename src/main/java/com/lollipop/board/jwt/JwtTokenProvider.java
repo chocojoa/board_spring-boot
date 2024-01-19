@@ -1,7 +1,9 @@
 package com.lollipop.board.jwt;
 
+import com.lollipop.board.redis.dao.RedisDAO;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -92,9 +94,9 @@ public class JwtTokenProvider {
         return getAuthoritiesCollection(claims.get("role"));
     }
 
-    public Claims parseClaims(String accessToken) {
+    public Claims parseClaims(String token) {
         try {
-            return Jwts.parser().verifyWith(key).build().parseSignedClaims(accessToken).getPayload();
+            return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
