@@ -1,9 +1,7 @@
 package com.lollipop.board.jwt;
 
-import com.lollipop.board.redis.dao.RedisDAO;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,16 +33,16 @@ public class JwtTokenProvider {
         this.key = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS512.key().build().getAlgorithm());
     }
 
-    public String generateAccessToken(UserDetails userDetails) {
+    public String generateAccessToken(String username) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", "USER");
-        return createToken(claims, userDetails.getUsername(), accessTokenExpirationTime);
+        return createToken(claims, username, accessTokenExpirationTime);
     }
 
-    public String generateRefreshToken(UserDetails userDetails) {
+    public String generateRefreshToken(String username) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", "USER");
-        return createToken(claims, userDetails.getUsername(), refreshTokenExpirationTime);
+        return createToken(claims, username, refreshTokenExpirationTime);
     }
 
     private String createToken(Map<String, Object> claims, String subject, long expiration) {

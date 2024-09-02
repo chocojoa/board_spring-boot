@@ -11,8 +11,6 @@ import com.lollipop.board.user.model.UserParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -25,8 +23,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -42,7 +38,7 @@ public class LoginService {
     @Value("${jwt.refreshTokenExpirationMs}")
     private long refreshTokenExpirationTime;
 
-    public ResponseEntity<?> login(LoginParam loginParam) {
+    public LoginDTO login(LoginParam loginParam) {
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginParam.getEmail(), loginParam.getPassword());
@@ -53,15 +49,14 @@ public class LoginService {
         Collection<? extends GrantedAuthority> authorities = jwtTokenProvider.getAuthoritiesCollection(authentication);
         UserDetails userDetails = new User(loginParam.getEmail(), "", authorities);
 
-        LoginDTO tokens = getToken(userDetails);
-        return ResponseEntity.ok(tokens);
+        return getToken(userDetails.getUsername());
     }
 
-    public ResponseEntity<?> reissue(LoginParam loginParam) {
+    public LoginDTO reissue(LoginParam loginParam) {
         try {
             String refreshToken = loginParam.getRefreshToken();
 
-            if (validateRefreshToken(refreshToken)) {
+            if (validateRefreshToken(loginParam.getEmail(), refreshToken)) {
                 String username = jwtTokenProvider.extractUsername(refreshToken);
 
                 UserParam userParam = UserParam.builder().email(username).build();
@@ -70,65 +65,60 @@ public class LoginService {
                 Collection<? extends GrantedAuthority> authorities = jwtTokenProvider.extractAuth(refreshToken);
                 UserDetails userDetails = new User(userDTO.getEmail(), "", authorities);
 
-                LoginDTO tokens = getToken(userDetails);
-                return ResponseEntity.ok(tokens);
+                return getReissueToken(userDetails.getUsername(), refreshToken);
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                throw new RuntimeException("Invalid refresh token");
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new RuntimeException("Invalid refresh token");
         }
     }
 
-    public ResponseEntity<?> signUp(UserDTO userDTO) {
+    public void signUp(UserDTO userDTO) {
         try {
             UserParam userParam = UserParam.builder().email(userDTO.getEmail()).build();
             UserDTO user = userMapper.selectUserByEmail(userParam);
 
-            boolean status = false;
-            String message = "이미 등록된 계정이 있습니다.";
-
             if(user == null) {
                 userDTO.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
                 userMapper.insertUser(userDTO);
-
-                status = true;
-                message = "계정이 생성되었습니다.";
             }
-            Map<String, Object> result = new HashMap<>();
-            result.put("status", status);
-            result.put("message", message);
-            return ResponseEntity.ok().body(result);
         } catch(Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new RuntimeException("sign up error");
         }
     }
 
-    private LoginDTO getToken(UserDetails userDetails) {
+    private LoginDTO getToken(String username) {
 
-        String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+        String accessToken = jwtTokenProvider.generateAccessToken(username);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(username);
 
         JwtToken token = JwtToken.builder().grantType("Bearer").accessToken(accessToken).refreshToken(refreshToken).build();
 
-        redisDAO.setValues(refreshToken, userDetails.getUsername(), Duration.ofMillis(refreshTokenExpirationTime));
+        redisDAO.setValues(username, refreshToken, Duration.ofMillis(refreshTokenExpirationTime));
 
-        UserParam userParam = UserParam.builder().email(userDetails.getUsername()).build();
+        UserParam userParam = UserParam.builder().email(username).build();
         UserDTO user = userMapper.selectUserByEmail(userParam);
 
         return LoginDTO.builder().token(token).user(user).build();
     }
 
-    public boolean validateRefreshToken(String token) {
-        try {
-            String username = jwtTokenProvider.extractUsername(token);
-            // Redis에서 Refresh Token 검증
-            String storedUsername = redisDAO.getValues(token);
-            return username.equals(storedUsername);
-        } catch (Exception e) {
-            log.info("validateRefreshToken error : " + e);
-            return false;
-        }
+    private LoginDTO getReissueToken(String username, String refreshToken) {
+
+        String accessToken = jwtTokenProvider.generateAccessToken(username);
+        JwtToken token = JwtToken.builder().grantType("Bearer").accessToken(accessToken).refreshToken(refreshToken).build();
+        UserParam userParam = UserParam.builder().email(username).build();
+        UserDTO user = userMapper.selectUserByEmail(userParam);
+
+        return LoginDTO.builder().token(token).user(user).build();
     }
 
+    public boolean validateRefreshToken(String username, String refreshToken) {
+        return redisDAO.getValues(username).equals(refreshToken);
+    }
+
+    public Boolean logout(LoginParam loginParam) {
+        String username = jwtTokenProvider.extractUsername(loginParam.getRefreshToken());
+        return redisDAO.deleteValues(username);
+    }
 }

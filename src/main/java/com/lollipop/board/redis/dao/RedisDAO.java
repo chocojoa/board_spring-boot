@@ -13,11 +13,6 @@ public class RedisDAO {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void setValues(String key, String data) {
-        ValueOperations<String, String> values = redisTemplate.opsForValue();
-        values.set(key, data);
-    }
-
     public void setValues(String key, String data, Duration duration) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
         values.set(key, data, duration);
@@ -28,8 +23,8 @@ public class RedisDAO {
         return values.get(key);
     }
 
-    public void deleteValues(String key) {
-        redisTemplate.delete(key);
+    public Boolean deleteValues(String key) {
+        return redisTemplate.delete(key);
     }
 
 }
