@@ -6,7 +6,7 @@
 
 # 프로젝트 구성
 - open jdk 17
-- spring boot 3.1.3
+- spring boot
 - spring security + JWT
 - mybatis
 # board_spring-boot
