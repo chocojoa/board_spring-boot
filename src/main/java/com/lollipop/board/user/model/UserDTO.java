@@ -1,6 +1,7 @@
 package com.lollipop.board.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
@@ -17,6 +18,7 @@ public class UserDTO {
     @JsonIgnore
     private String password;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String roleId;
 
     @JsonIgnore

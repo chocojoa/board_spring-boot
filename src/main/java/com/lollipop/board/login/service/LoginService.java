@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.util.Collection;
@@ -53,38 +54,31 @@ public class LoginService {
     }
 
     public LoginDTO reissue(LoginParam loginParam) {
-        try {
-            String refreshToken = loginParam.getRefreshToken();
+        String refreshToken = loginParam.getRefreshToken();
+        if (validateRefreshToken(refreshToken)) {
+            String username = jwtTokenProvider.extractUsername(refreshToken);
 
-            if (validateRefreshToken(loginParam.getEmail(), refreshToken)) {
-                String username = jwtTokenProvider.extractUsername(refreshToken);
+            UserParam userParam = UserParam.builder().email(username).build();
+            UserDTO userDTO = userMapper.selectUserByEmail(userParam);
 
-                UserParam userParam = UserParam.builder().email(username).build();
-                UserDTO userDTO = userMapper.selectUserByEmail(userParam);
+            Collection<? extends GrantedAuthority> authorities = jwtTokenProvider.extractAuth(refreshToken);
+            UserDetails userDetails = new User(userDTO.getEmail(), "", authorities);
 
-                Collection<? extends GrantedAuthority> authorities = jwtTokenProvider.extractAuth(refreshToken);
-                UserDetails userDetails = new User(userDTO.getEmail(), "", authorities);
-
-                return getReissueToken(userDetails.getUsername(), refreshToken);
-            } else {
-                throw new RuntimeException("Invalid refresh token");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid refresh token");
+            return getReissueToken(userDetails.getUsername(), refreshToken);
+        } else {
+            throw new RuntimeException("유효하지 않은 토큰입니다.");
         }
     }
 
     public void signUp(UserDTO userDTO) {
-        try {
-            UserParam userParam = UserParam.builder().email(userDTO.getEmail()).build();
-            UserDTO user = userMapper.selectUserByEmail(userParam);
+        UserParam userParam = UserParam.builder().email(userDTO.getEmail()).build();
+        UserDTO user = userMapper.selectUserByEmail(userParam);
 
-            if(user == null) {
-                userDTO.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
-                userMapper.insertUser(userDTO);
-            }
-        } catch(Exception e) {
-            throw new RuntimeException("sign up error");
+        if(user == null) {
+            userDTO.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
+            userMapper.insertUser(userDTO);
+        } else {
+            throw new RuntimeException("이미 등록된 계정이 있습니다.");
         }
     }
 
@@ -113,8 +107,16 @@ public class LoginService {
         return LoginDTO.builder().token(token).user(user).build();
     }
 
-    public boolean validateRefreshToken(String username, String refreshToken) {
-        return redisDAO.getValues(username).equals(refreshToken);
+    public boolean validateRefreshToken(String refreshToken) {
+        if(StringUtils.hasText(refreshToken) && jwtTokenProvider.validateToken(refreshToken)) {
+            String username = jwtTokenProvider.extractUsername(refreshToken);
+            String savedRefreshToken = redisDAO.getValues(username);
+            if(savedRefreshToken == null) {
+                return false;
+            }
+            return savedRefreshToken.equals(refreshToken);
+        }
+        return false;
     }
 
     public Boolean logout(LoginParam loginParam) {

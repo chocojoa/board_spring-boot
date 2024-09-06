@@ -1,8 +1,11 @@
 package com.lollipop.board.jwt;
 
+import com.lollipop.board.jwt.exception.JwtErrorCode;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -70,16 +73,22 @@ public class JwtTokenProvider {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
-        } catch (SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT token", e);
+        } catch (SignatureException e) {
+            log.error("Invalid JWT signature: {}", e.getMessage());
+            throw new BadCredentialsException(JwtErrorCode.INVALID_JWT_SIGNATURE.getErrorCode());
+        } catch (MalformedJwtException e) {
+            log.error("Invalid JWT token: {}", e.getMessage());
+            throw new BadCredentialsException(JwtErrorCode.INVALID_JWT_TOKEN.getErrorCode());
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT token", e);
+            log.error("JWT token is expired: {}", e.getMessage());
+            throw new BadCredentialsException(JwtErrorCode.JWT_TOKEN_EXPIRED.getErrorCode());
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT token", e);
+            log.error("JWT token is unsupported: {}", e.getMessage());
+            throw new BadCredentialsException(JwtErrorCode.JWT_TOKEN_IS_UNSUPPORTED.getErrorCode());
         } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty.", e);
+            log.error("JWT claims string is empty: {}", e.getMessage());
+            throw new BadCredentialsException(JwtErrorCode.JWT_CLAIMS_STRING_EMPTY.getErrorCode());
         }
-        return false;
     }
 
     public String extractUsername(String token) {
