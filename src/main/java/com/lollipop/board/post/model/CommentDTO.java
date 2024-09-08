@@ -1,4 +1,4 @@
-package com.lollipop.board.board.model;
+package com.lollipop.board.post.model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +11,10 @@ import org.apache.ibatis.type.Alias;
 @Alias("commentDTO")
 public class CommentDTO {
 
+    private String categoryId;
+
+    private int postId;
+
     private int commentId;
 
     private String content;
@@ -18,8 +22,6 @@ public class CommentDTO {
     private int parentCommentId;
 
     private int step;
-
-    private int boardId;
 
     private String createdDate;
 

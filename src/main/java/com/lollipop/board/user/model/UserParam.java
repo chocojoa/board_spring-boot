@@ -1,6 +1,5 @@
 package com.lollipop.board.user.model;
 
-import com.lollipop.board.common.model.DataTableDTO;
 import lombok.*;
 import org.apache.ibatis.type.Alias;
 
@@ -8,7 +7,7 @@ import org.apache.ibatis.type.Alias;
 @Setter
 @Builder
 @Alias("userParam")
-public class UserParam extends DataTableDTO {
+public class UserParam {
 
     private int userId;
 

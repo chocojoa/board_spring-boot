@@ -1,0 +1,21 @@
+package com.lollipop.board.post.model;
+
+import com.lollipop.board.common.model.PaginationParam;
+import lombok.*;
+import org.apache.ibatis.type.Alias;
+
+@Getter
+@Setter
+@ToString
+@Alias("postParam")
+public class PostParam extends PaginationParam {
+
+    private int postId;
+
+    private String categoryId;
+
+    private String title;
+
+    private String userName;
+
+}

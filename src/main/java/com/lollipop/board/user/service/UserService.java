@@ -1,6 +1,6 @@
 package com.lollipop.board.user.service;
 
-import com.lollipop.board.common.model.WrapperDTO;
+import com.lollipop.board.common.model.PaginationDTO;
 import com.lollipop.board.user.mapper.UserMapper;
 import com.lollipop.board.user.model.UserDTO;
 import com.lollipop.board.user.model.UserParam;
@@ -16,41 +16,44 @@ public class UserService {
     private final UserMapper userMapper;
 
     /**
-     * 고객 목록 조회
-     * @param userParam
-     * @return
+     * 사용자 목록 조회
+     * @param userParam 검색조건
+     * @return 사용자 목록
      */
-    public WrapperDTO retrieveUserList(UserParam userParam) {
+    public PaginationDTO<UserDTO> retrieveUserList(UserParam userParam) {
         int totalCount = userMapper.selectUserCount(userParam);
         List<UserDTO> userList = userMapper.selectUserList(userParam);
-        return new WrapperDTO(userParam.getDraw(), totalCount, userList);
+        return new PaginationDTO<>(totalCount, userList);
     }
 
     /**
-     * 고객 정보 조회
-     * @param userParam
-     * @return
+     * 사용자 상세 조회
+     * @param userId 사용자 아이디
+     * @return 사용자 정보
      */
-    public UserDTO retrieveUser(UserParam userParam) {
+    public UserDTO retrieveUser(int userId) {
+        UserParam userParam = UserParam.builder().userId(userId).build();
         return userMapper.selectUser(userParam);
     }
 
     /**
-     * 고객 정보 저장
-     * @param userDTO
-     * @return
+     * 사용자 생성
+     * @param userDTO 사용자 정보
+     * @return 저장된 사용자 정보
      */
-    public int createUser(UserDTO userDTO) {
-        return userMapper.insertUser(userDTO);
+    public UserDTO createUser(UserDTO userDTO) {
+        userMapper.insertUser(userDTO);
+        return userDTO;
     }
 
     /**
-     * 고객 정보 수정
-     * @param userDTO
-     * @return
+     * 사용자 수정
+     * @param userDTO 사용자 정보
+     * @return 수정된 사용자 정보
      */
-    public int modifyUser(UserDTO userDTO) {
-        return userMapper.updateUser(userDTO);
+    public UserDTO modifyUser(UserDTO userDTO) {
+        userMapper.updateUser(userDTO);
+        return userDTO;
     }
 
 }

@@ -1,60 +1,62 @@
 package com.lollipop.board.user.controller;
 
-import com.lollipop.board.common.model.WrapperDTO;
+import com.lollipop.board.common.model.ApiResponse;
+import com.lollipop.board.common.model.PaginationDTO;
 import com.lollipop.board.user.model.UserDTO;
 import com.lollipop.board.user.model.UserParam;
 import com.lollipop.board.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
 
     /**
-     * 사용자 정보 목록 조회
-     * @param userParam
-     * @return
+     * 사용자 목록 조회
+     * @param userParam 검색조건
+     * @return 사용자 목록
      */
-    @PostMapping("/users")
-    @ResponseBody
-    public WrapperDTO retrieveUserList(UserParam userParam){
-        return userService.retrieveUserList(userParam);
+    @GetMapping
+    public ResponseEntity<ApiResponse<PaginationDTO<UserDTO>>> retrieveUserList(
+            UserParam userParam){
+        PaginationDTO<UserDTO> userList = userService.retrieveUserList(userParam);
+        return ResponseEntity.ok().body(ApiResponse.success(userList));
     }
 
     /**
      * 사용자 정보 조회
-     * @param userParam
-     * @return
+     * @param userId 사용자 아이디
+     * @return 사용자 정보
      */
-    @GetMapping("/user")
-    @ResponseBody
-    public UserDTO retrieveUser(UserParam userParam){
-        return userService.retrieveUser(userParam);
+    @GetMapping("/{userId}")
+    public ResponseEntity<ApiResponse<UserDTO>> retrieveUser(@PathVariable int userId){
+        UserDTO userDTO = userService.retrieveUser(userId);
+        return ResponseEntity.ok().body(ApiResponse.success(userDTO));
     }
 
     /**
      * 사용자 정보 생성
-     * @param userDTO
+     * @param userDTO 사용자 정보
+     * @return 저장된 사용자 정보
      */
-    @PostMapping("/user")
-    @ResponseBody
-    public void createUser(@RequestBody UserDTO userDTO){
-        userService.createUser(userDTO);
+    @PostMapping
+    public ResponseEntity<ApiResponse<UserDTO>> createUser(@RequestBody UserDTO userDTO){
+        UserDTO createdUserDTO = userService.createUser(userDTO);
+        return ResponseEntity.ok().body(ApiResponse.success(createdUserDTO));
     }
 
     /**
      * 사용자 정보 수정
-     * @param userDTO
+     * @param userDTO 사용자 정보
      */
-    @PutMapping("/user")
-    @ResponseBody
-    public void modifyUser(@RequestBody UserDTO userDTO){
-        userService.modifyUser(userDTO);
+    @PutMapping
+    public ResponseEntity<ApiResponse<UserDTO>> modifyUser(@RequestBody UserDTO userDTO){
+        UserDTO modifiedUserDTO = userService.modifyUser(userDTO);
+        return ResponseEntity.ok().body(ApiResponse.success(modifiedUserDTO));
     }
-
 }
