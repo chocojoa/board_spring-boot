@@ -11,7 +11,7 @@ public class PaginationParam {
 
     private String sortDirection;
 
-    private int pageIndex;
+    private int startIndex;
 
     private int pageSize;
 }
