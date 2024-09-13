@@ -16,6 +16,6 @@ public class PostParam extends PaginationParam {
 
     private String title;
 
-    private String userName;
+    private String author;
 
 }

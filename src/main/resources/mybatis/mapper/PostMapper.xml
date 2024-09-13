@@ -11,8 +11,8 @@
         <if test="title != null and title != ''">
             AND P.TITLE LIKE CONCAT(#{title}, '%')
         </if>
-        <if test="userName != null and userName != ''">
-            AND P.CREATED_BY LIKE CONCAT(#{userName}, '%')
+        <if test="author != null and author != ''">
+            AND P.CREATED_BY LIKE CONCAT(#{author}, '%')
         </if>
     </select>
 
@@ -21,12 +21,13 @@
         SELECT *
           FROM (
                 SELECT ROW_NUMBER() OVER(PARTITION BY P.CATEGORY_ID ORDER BY P.CREATED_AT, P.ID) AS rowNumber
+                     , P.CATEGORY_ID        AS categoryId
                      , P.ID                 AS postId
                      , P.TITLE              AS title
                      , P.VIEW_COUNT         AS viewCount
                      , PC.COMMENT_COUNT     AS commentCount
                      , U.ID                 AS userId
-                     , U.USER_NAME          AS userName
+                     , U.USER_NAME          AS author
                      , DATE_FORMAT(P.CREATED_AT, '%Y-%m-%d') AS createdDate
                   FROM POST P
                   LEFT JOIN USER U ON P.CREATED_BY = U.ID
@@ -40,8 +41,8 @@
                 <if test="title != null and title != ''">
                    AND P.TITLE LIKE CONCAT(#{title}, '%')
                 </if>
-                <if test="userName != null and userName != ''">
-                   AND P.CREATED_BY LIKE CONCAT(#{userName}, '%')
+                <if test="author != null and author != ''">
+                   AND P.CREATED_BY LIKE CONCAT(#{author}, '%')
                 </if>
                 ) A
         <if test="sortColumn != null">
