@@ -7,6 +7,7 @@ import com.lollipop.board.login.service.LoginService;
 import com.lollipop.board.user.model.UserDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -19,50 +20,46 @@ public class LoginController {
 
     /**
      * 로그인
-     * @param loginParam login parameters
-     * @return token & user information
+     * @param loginParam 로그인 정보
+     * @return 토큰 및 사용자 정보
      */
     @PostMapping("/login")
-    public ApiResponse<LoginDTO> login(@RequestBody LoginParam loginParam) {
+    public ResponseEntity<ApiResponse<LoginDTO>> login(@RequestBody LoginParam loginParam) {
         LoginDTO loginDTO = loginService.login(loginParam);
-        return new ApiResponse<>(true, "Authentication successful", loginDTO);
+        return ResponseEntity.ok().body(ApiResponse.success(loginDTO));
     }
 
     /**
      * 토큰 재발행
-     * @param loginParam login parameters
-     * @return token & user information
+     * @param loginParam 로그인 정보
+     * @return 토큰 및 사용자 정보
      */
     @PostMapping("/reissue")
-    public ApiResponse<LoginDTO> refreshToken(@RequestBody LoginParam loginParam) {
+    public ResponseEntity<ApiResponse<LoginDTO>> refreshToken(@RequestBody LoginParam loginParam) {
         LoginDTO loginDTO = loginService.reissue(loginParam);
-        return new ApiResponse<>(true, "Token refreshed successfully", loginDTO);
+        return ResponseEntity.ok().body(ApiResponse.success(loginDTO));
     }
 
     /**
      * 로그아웃
-     * @param loginParam login parameters
-     * @return message
+     * @param loginParam 로그인 정보
+     * @return 로그아웃 정보
      */
     @PostMapping("/logout")
-    public ApiResponse<String> logout(@RequestBody LoginParam loginParam) {
-        Boolean result = loginService.logout(loginParam);
-        String message = "Logout successful";
-        if(!result) {
-            message = "Logout failed";
-        }
-        return new ApiResponse<>(result, message, null);
+    public ResponseEntity<ApiResponse<Void>> logout(@RequestBody LoginParam loginParam) {
+        loginService.logout(loginParam);
+        return ResponseEntity.ok().body(ApiResponse.success(null));
     }
 
     /**
      * 회원가입
-     * @param userDTO signUp parameters
+     * @param userDTO 회원가입 정보
      * @return message
      */
     @PostMapping("/signUp")
-    public ApiResponse<String> signUp(@RequestBody UserDTO userDTO){
+    public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody UserDTO userDTO){
         loginService.signUp(userDTO);
-        return new ApiResponse<>(true, "Your account has been created", null);
+        return ResponseEntity.ok().body(ApiResponse.success(null));
     }
 
 }

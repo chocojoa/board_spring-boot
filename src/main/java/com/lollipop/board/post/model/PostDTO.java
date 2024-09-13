@@ -1,4 +1,4 @@
-package com.lollipop.board.board.model;
+package com.lollipop.board.post.model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,18 +8,18 @@ import org.apache.ibatis.type.Alias;
 @Getter
 @Setter
 @ToString
-@Alias("boardDTO")
-public class BoardDTO {
+@Alias("postDTO")
+public class PostDTO {
+
+    private int postId;
 
     private int rowNumber;
-
-    private int boardId;
 
     private String title;
 
     private String content;
 
-    private String category;
+    private String categoryId;
 
     private String fixed;
 
@@ -30,6 +30,8 @@ public class BoardDTO {
     private int userId;
 
     private String userName;
+
+    private int viewCount;
 
     private int commentCount;
 }

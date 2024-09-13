@@ -10,45 +10,43 @@ import java.util.List;
 public interface UserMapper {
 
     /**
-     * 사용자 목록 개수 조회
-     * @param userParam
-     * @return
+     * 사용자 전체 개수 조회
+     * @param userParam 검색조건
+     * @return 사용자 수
      */
     int selectUserCount(UserParam userParam);
 
     /**
      * 사용자 목록 조회
-     * @param userParam
-     * @return
+     * @param userParam 검색조건
+     * @return 사용자 목록
      */
     List<UserDTO> selectUserList(UserParam userParam);
 
     /**
      * 사용자 정보 조회
-     * @param userParam
-     * @return
+     * @param userParam 검색조건
+     * @return 사용자 정보
      */
     UserDTO selectUser(UserParam userParam);
 
     /**
      * 이메일주소로 사용자 정보 조회
-     * @param userParam
-     * @return
+     * @param userParam 검색조건
+     * @return 사용자 정보
      */
     UserDTO selectUserByEmail(UserParam userParam);
 
     /**
      * 사용자 정보 저장
-     * @param userDTO
-     * @return
+     * @param userDTO 사용자 정보
      */
-    int insertUser(UserDTO userDTO);
+    void insertUser(UserDTO userDTO);
 
     /**
      * 사용자 정보 수정
-     * @param userDTO
-     * @return
+     * @param userDTO 사용자 정보
      */
-    int updateUser(UserDTO userDTO);
+    void updateUser(UserDTO userDTO);
 
 }

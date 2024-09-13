@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lollipop.board.post.mapper.PostMapper">
+
+    <!-- 게시글 개수 조회 -->
+    <select id="selectPostCount" parameterType="postParam" resultType="java.lang.Integer">
+        SELECT COUNT(P.ID) AS totalCount
+          FROM POST P
+         WHERE P.CATEGORY_ID = #{categoryId}
+        <if test="title != null and title != ''">
+            AND P.TITLE LIKE CONCAT(#{title}, '%')
+        </if>
+        <if test="author != null and author != ''">
+            AND P.CREATED_BY LIKE CONCAT(#{author}, '%')
+        </if>
+    </select>
+
+    <!-- 게시글 목록 조회 -->
+    <select id="selectPostList" parameterType="postParam" resultType="postDTO">
+        SELECT *
+          FROM (
+                SELECT ROW_NUMBER() OVER(PARTITION BY P.CATEGORY_ID ORDER BY P.CREATED_AT, P.ID) AS rowNumber
+                     , P.CATEGORY_ID        AS categoryId
+                     , P.ID                 AS postId
+                     , P.TITLE              AS title
+                     , P.VIEW_COUNT         AS viewCount
+                     , PC.COMMENT_COUNT     AS commentCount
+                     , U.ID                 AS userId
+                     , U.USER_NAME          AS author
+                     , DATE_FORMAT(P.CREATED_AT, '%Y-%m-%d') AS createdDate
+                  FROM POST P
+                  LEFT JOIN USER U ON P.CREATED_BY = U.ID
+                  LEFT JOIN (
+                             SELECT POST_ID AS POST_ID
+                                  , COUNT(POST_ID) AS COMMENT_COUNT
+                               FROM POST_COMMENT
+                              GROUP BY POST_ID
+                             ) PC ON P.ID = PC.POST_ID
+                 WHERE P.CATEGORY_ID = #{categoryId}
+                <if test="title != null and title != ''">
+                   AND P.TITLE LIKE CONCAT(#{title}, '%')
+                </if>
+                <if test="author != null and author != ''">
+                   AND P.CREATED_BY LIKE CONCAT(#{author}, '%')
+                </if>
+                ) A
+        <if test="sortColumn != null">
+            ORDER BY ${sortColumn} ${sortDirection}
+        </if>
+        <if test="pageSize > 0">
+            LIMIT #{startIndex}, #{pageSize}
+        </if>
+    </select>
+
+    <!-- 게시글 정보 조회 -->
+    <select id="selectPost" parameterType="postParam" resultType="postDTO">
+        SELECT P.ID             AS postId
+             , P.TITLE          AS title
+             , P.CONTENT        AS content
+             , P.VIEW_COUNT     AS viewCount
+             , P.CREATED_BY     AS author
+             , DATE_FORMAT(P.CREATED_AT, '%Y-%m-%d %H:%i:%s')  AS createdDate
+          FROM POST P
+         WHERE P.CATEGORY_ID = #{categoryId}
+           AND P.ID = #{postId}
+    </select>
+
+    <!-- 게시글 정보 저장 -->
+    <insert id="insertPost" parameterType="postDTO" useGeneratedKeys="true" keyProperty="postId">
+        INSERT INTO POST (
+                  CATEGORY_ID
+                , TITLE
+                , CONTENT
+                , VIEW_COUNT
+                , CREATED_BY
+            ) VALUES (
+                  #{categoryId}
+                , #{title}
+                , #{content}
+                , 0
+                , #{userId}
+            )
+    </insert>
+
+    <!-- 게시글 정보 수정 -->
+    <update id="updatePost" parameterType="postDTO">
+        UPDATE POST
+        <set>
+            <if test="title != null and title != ''">
+                TITLE = #{title},
+            </if>
+            <if test="content != null and content != ''">
+                CONTENT = #{content},
+            </if>
+            MODIFIED_BY = #{userId},
+            MODIFIED_AT = NOW()
+        </set>
+        WHERE CATEGORY_ID = #{categoryId}
+          AND ID = #{postId}
+    </update>
+
+    <!-- 댓글 목록 조회 -->
+    <select id="selectCommentList" parameterType="postParam" resultType="commentDTO">
+        WITH RECURSIVE CTE AS (
+            SELECT PC.ID AS COMMENT_ID
+                 , PC.CONTENT
+                 , PC.PARENT_COMMENT_ID
+                 , PC.POST_ID
+                 , PC.CREATED_BY
+                 , PC.CREATED_AT
+                 , PC.ID AS GROUP_ID
+                 , 0 AS STEP
+              FROM POST_COMMENT PC
+             WHERE PC.PARENT_COMMENT_ID = 0
+               AND PC.POST_ID = #{postId}
+             UNION ALL
+            SELECT PC2.ID AS COMMENT_ID
+                 , PC2.CONTENT
+                 , PC2.PARENT_COMMENT_ID
+                 , PC2.POST_ID
+                 , PC2.CREATED_BY
+                 , PC2.CREATED_AT
+                 , CTE.COMMENT_ID AS GROUP_ID
+                 , CTE.STEP + 1 AS STEP
+              FROM POST_COMMENT PC2
+             INNER JOIN CTE ON PC2.PARENT_COMMENT_ID = CTE.COMMENT_ID
+             WHERE PC2.POST_ID = #{postId}
+        )
+        SELECT C.COMMENT_ID         AS commentId
+             , C.CONTENT            AS content
+             , C.PARENT_COMMENT_ID  AS parentCommentId
+             , C.STEP               AS step
+             , C.POST_ID            AS postId
+             , U.USER_NAME          AS userName
+             , U.EMAIL              AS email
+             , DATE_FORMAT(C.CREATED_AT, '%Y-%m-%d %H:%i:%s')  AS createdDate
+          FROM CTE C
+          LEFT JOIN USER U ON C.CREATED_BY = U.ID
+         ORDER BY C.GROUP_ID, C.COMMENT_ID
+    </select>
+
+    <!-- 댓글 정보 저장 -->
+    <insert id="insertComment" parameterType="commentDTO">
+        INSERT INTO POST_COMMENT (
+                  CONTENT
+                , PARENT_COMMENT_ID
+                , POST_ID
+                , CREATED_BY
+            ) VALUES (
+                  #{content}
+                , #{parentCommentId}
+                , #{postId}
+                , #{userId}
+            )
+    </insert>
+
+</mapper>
