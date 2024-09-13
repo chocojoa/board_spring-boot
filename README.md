@@ -10,3 +10,6 @@
 - spring security + JWT
 - mybatis
 
+# 필요 프로그램
+- MySQL 8
+- Redis
