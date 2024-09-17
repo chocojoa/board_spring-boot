@@ -60,7 +60,7 @@
              , P.CONTENT        AS content
              , P.VIEW_COUNT     AS viewCount
              , P.CREATED_BY     AS author
-             , DATE_FORMAT(P.CREATED_AT, '%Y-%m-%d %H:%i:%s')  AS createdDate
+             , DATE_FORMAT(P.CREATED_AT, '%Y-%m-%d %H:%i')  AS createdDate
           FROM POST P
          WHERE P.CATEGORY_ID = #{categoryId}
            AND P.ID = #{postId}

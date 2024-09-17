@@ -29,7 +29,7 @@ public class PostDTO {
 
     private int userId;
 
-    private String userName;
+    private String author;
 
     private int viewCount;
 
