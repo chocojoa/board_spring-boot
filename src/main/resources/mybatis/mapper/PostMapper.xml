@@ -132,9 +132,9 @@
              , C.PARENT_COMMENT_ID  AS parentCommentId
              , C.STEP               AS step
              , C.POST_ID            AS postId
-             , U.USER_NAME          AS userName
+             , U.USER_NAME          AS author
              , U.EMAIL              AS email
-             , DATE_FORMAT(C.CREATED_AT, '%Y-%m-%d %H:%i:%s')  AS createdDate
+             , DATE_FORMAT(C.CREATED_AT, '%Y-%m-%d %H:%i')  AS createdDate
           FROM CTE C
           LEFT JOIN USER U ON C.CREATED_BY = U.ID
          ORDER BY C.GROUP_ID, C.COMMENT_ID

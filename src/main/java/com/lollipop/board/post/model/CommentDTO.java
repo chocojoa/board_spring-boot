@@ -27,7 +27,7 @@ public class CommentDTO {
 
     private int userId;
 
-    private String userName;
+    private String author;
 
     private String email;
 }
