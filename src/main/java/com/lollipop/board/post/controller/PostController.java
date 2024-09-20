@@ -21,8 +21,9 @@ public class PostController {
 
     /**
      * 게시글 목록 조회
+     *
      * @param categoryId 카테고리 아이디
-     * @param postParam 검색조건
+     * @param postParam  검색조건
      * @return 게시글 목록
      */
     @GetMapping("/{categoryId}/posts")
@@ -36,8 +37,9 @@ public class PostController {
 
     /**
      * 게시글 정보 조회
+     *
      * @param categoryId 카테고리 아이디
-     * @param postId 게시글 아이디
+     * @param postId     게시글 아이디
      * @return 게시글 정보
      */
     @GetMapping("/{categoryId}/posts/{postId}")
@@ -50,8 +52,9 @@ public class PostController {
 
     /**
      * 게시글 생성
+     *
      * @param categoryId 카테고리 아이디
-     * @param postDTO 게시글 아이디
+     * @param postDTO    게시글 아이디
      * @return 생성된 게시글 정보
      */
     @PostMapping("/{categoryId}/posts")
@@ -64,9 +67,10 @@ public class PostController {
 
     /**
      * 게시글 수정
+     *
      * @param categoryId 카테고리 아이디
-     * @param postId 게시글 아이디
-     * @param postDTO 게시글 아이디
+     * @param postId     게시글 아이디
+     * @param postDTO    게시글 아이디
      * @return 수정된 게시글 정보
      */
     @PutMapping("/{categoryId}/posts/{postId}")
@@ -80,8 +84,9 @@ public class PostController {
 
     /**
      * 댓글 목록 조회
+     *
      * @param categoryId 카테고리 아이디
-     * @param postId 게시글 아이디
+     * @param postId     게시글 아이디
      * @return 댓글 목록
      */
     @GetMapping("/{categoryId}/posts/{postId}/comments")
@@ -94,12 +99,13 @@ public class PostController {
 
     /**
      * 댓글 작성
+     *
      * @param categoryId 카테고리 아이디
-     * @param postId 게시글 아이디
+     * @param postId     게시글 아이디
      * @param commentDTO 댓글 정보
      * @return 저장된 댓글 정보
      */
-    @PostMapping("/{postId}/comments")
+    @PostMapping("/{categoryId}/posts/{postId}/comments")
     public ResponseEntity<ApiResponse<CommentDTO>> createComment(
             @PathVariable("categoryId") String categoryId,
             @PathVariable("postId") int postId,
