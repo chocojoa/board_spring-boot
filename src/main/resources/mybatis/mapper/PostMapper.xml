@@ -74,12 +74,14 @@
                 , CONTENT
                 , VIEW_COUNT
                 , CREATED_BY
+                , CREATED_AT
             ) VALUES (
                   #{categoryId}
                 , #{title}
                 , #{content}
                 , 0
                 , #{userId}
+                , NOW()
             )
     </insert>
 
@@ -147,11 +149,13 @@
                 , PARENT_COMMENT_ID
                 , POST_ID
                 , CREATED_BY
+                , CREATED_AT
             ) VALUES (
                   #{content}
                 , #{parentCommentId}
                 , #{postId}
                 , #{userId}
+                , NOW()
             )
     </insert>
 
