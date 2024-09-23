@@ -111,8 +111,8 @@
                  , PC.POST_ID
                  , PC.CREATED_BY
                  , PC.CREATED_AT
-                 , PC.ID AS GROUP_ID
                  , 0 AS STEP
+                 , CAST(LPAD(PC.ID, 8, '0') AS CHAR(200)) AS SORT_INDEX
               FROM POST_COMMENT PC
              WHERE PC.PARENT_COMMENT_ID = 0
                AND PC.POST_ID = #{postId}
@@ -123,8 +123,8 @@
                  , PC2.POST_ID
                  , PC2.CREATED_BY
                  , PC2.CREATED_AT
-                 , CTE.COMMENT_ID AS GROUP_ID
                  , CTE.STEP + 1 AS STEP
+                 , CONCAT(CTE.SORT_INDEX, ',', LPAD(PC2.ID, 8, '0')) AS SORT_INDEX
               FROM POST_COMMENT PC2
              INNER JOIN CTE ON PC2.PARENT_COMMENT_ID = CTE.COMMENT_ID
              WHERE PC2.POST_ID = #{postId}
@@ -139,7 +139,7 @@
              , DATE_FORMAT(C.CREATED_AT, '%Y-%m-%d %H:%i')  AS createdDate
           FROM CTE C
           LEFT JOIN USER U ON C.CREATED_BY = U.ID
-         ORDER BY C.GROUP_ID, C.COMMENT_ID
+         ORDER BY C.SORT_INDEX
     </select>
 
     <!-- 댓글 정보 저장 -->
