@@ -20,17 +20,19 @@ public class LoginController {
 
     /**
      * 로그인
+     *
      * @param loginParam 로그인 정보
      * @return 토큰 및 사용자 정보
      */
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginDTO>> login(@RequestBody LoginParam loginParam) {
-        LoginDTO loginDTO = loginService.login(loginParam);
+    @PostMapping("signIn")
+    public ResponseEntity<ApiResponse<LoginDTO>> signIn(@RequestBody LoginParam loginParam) {
+        LoginDTO loginDTO = loginService.signIn(loginParam);
         return ResponseEntity.ok().body(ApiResponse.success(loginDTO));
     }
 
     /**
      * 토큰 재발행
+     *
      * @param loginParam 로그인 정보
      * @return 토큰 및 사용자 정보
      */
@@ -42,22 +44,24 @@ public class LoginController {
 
     /**
      * 로그아웃
+     *
      * @param loginParam 로그인 정보
      * @return 로그아웃 정보
      */
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(@RequestBody LoginParam loginParam) {
-        loginService.logout(loginParam);
+    @PostMapping("/signOut")
+    public ResponseEntity<ApiResponse<Void>> signOut(@RequestBody LoginParam loginParam) {
+        loginService.signOut(loginParam);
         return ResponseEntity.ok().body(ApiResponse.success(null));
     }
 
     /**
      * 회원가입
+     *
      * @param userDTO 회원가입 정보
      * @return message
      */
     @PostMapping("/signUp")
-    public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody UserDTO userDTO){
+    public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody UserDTO userDTO) {
         loginService.signUp(userDTO);
         return ResponseEntity.ok().body(ApiResponse.success(null));
     }

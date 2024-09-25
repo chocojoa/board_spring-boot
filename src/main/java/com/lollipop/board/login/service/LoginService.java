@@ -39,7 +39,7 @@ public class LoginService {
     @Value("${jwt.refreshTokenExpirationMs}")
     private long refreshTokenExpirationTime;
 
-    public LoginDTO login(LoginParam loginParam) {
+    public LoginDTO signIn(LoginParam loginParam) {
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginParam.getEmail(), loginParam.getPassword());
@@ -74,7 +74,7 @@ public class LoginService {
         UserParam userParam = UserParam.builder().email(userDTO.getEmail()).build();
         UserDTO user = userMapper.selectUserByEmail(userParam);
 
-        if(user == null) {
+        if (user == null) {
             userDTO.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
             userMapper.insertUser(userDTO);
         } else {
@@ -108,10 +108,10 @@ public class LoginService {
     }
 
     public boolean validateRefreshToken(String refreshToken) {
-        if(StringUtils.hasText(refreshToken) && jwtTokenProvider.validateToken(refreshToken)) {
+        if (StringUtils.hasText(refreshToken) && jwtTokenProvider.validateToken(refreshToken)) {
             String username = jwtTokenProvider.extractUsername(refreshToken);
             String savedRefreshToken = redisDAO.getValues(username);
-            if(savedRefreshToken == null) {
+            if (savedRefreshToken == null) {
                 return false;
             }
             return savedRefreshToken.equals(refreshToken);
@@ -119,8 +119,11 @@ public class LoginService {
         return false;
     }
 
-    public Boolean logout(LoginParam loginParam) {
+    public void signOut(LoginParam loginParam) {
         String username = jwtTokenProvider.extractUsername(loginParam.getRefreshToken());
-        return redisDAO.deleteValues(username);
+        Boolean result = redisDAO.deleteValues(username);
+        if (!result) {
+            throw new RuntimeException("로그아웃 도중 문제가 발생하였습니다.");
+        }
     }
 }
