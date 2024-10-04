@@ -7,12 +7,19 @@
     <select id="selectPostCount" parameterType="postParam" resultType="java.lang.Integer">
         SELECT COUNT(P.ID) AS totalCount
           FROM POST P
+         INNER JOIN USER U ON P.CREATED_BY = U.ID
          WHERE P.CATEGORY_ID = #{categoryId}
         <if test="title != null and title != ''">
-            AND P.TITLE LIKE CONCAT(#{title}, '%')
+           AND P.TITLE LIKE CONCAT('%', #{title}, '%')
         </if>
         <if test="author != null and author != ''">
-            AND P.CREATED_BY LIKE CONCAT(#{author}, '%')
+           AND U.USER_NAME LIKE CONCAT('%', #{author}, '%')
+        </if>
+        <if test="startCreatedDate != null and startCreatedDate != ''">
+           AND P.CREATED_AT > #{startCreatedDate}
+        </if>
+        <if test="endCreatedDate != null and endCreatedDate != ''">
+           AND P.CREATED_AT <![CDATA[<]]> DATE_ADD(#{endCreatedDate}, INTERVAL 1 DAY)
         </if>
     </select>
 
@@ -30,7 +37,7 @@
                      , U.USER_NAME          AS author
                      , DATE_FORMAT(P.CREATED_AT, '%Y-%m-%d') AS createdDate
                   FROM POST P
-                  LEFT JOIN USER U ON P.CREATED_BY = U.ID
+                 INNER JOIN USER U ON P.CREATED_BY = U.ID
                   LEFT JOIN (
                              SELECT POST_ID AS POST_ID
                                   , COUNT(POST_ID) AS COMMENT_COUNT
@@ -39,10 +46,16 @@
                              ) PC ON P.ID = PC.POST_ID
                  WHERE P.CATEGORY_ID = #{categoryId}
                 <if test="title != null and title != ''">
-                   AND P.TITLE LIKE CONCAT(#{title}, '%')
+                   AND P.TITLE LIKE CONCAT('%', #{title}, '%')
                 </if>
                 <if test="author != null and author != ''">
-                   AND P.CREATED_BY LIKE CONCAT(#{author}, '%')
+                   AND U.USER_NAME LIKE CONCAT('%' #{author}, '%')
+                </if>
+                <if test="startCreatedDate != null and startCreatedDate != ''">
+                   AND P.CREATED_AT > #{startCreatedDate}
+                </if>
+                <if test="endCreatedDate != null and endCreatedDate != ''">
+                   AND P.CREATED_AT <![CDATA[<]]> DATE_ADD(#{endCreatedDate}, INTERVAL 1 DAY)
                 </if>
                 ) A
         <if test="sortColumn != null">
