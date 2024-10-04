@@ -18,4 +18,8 @@ public class PostParam extends PaginationParam {
 
     private String author;
 
+    private String startCreatedDate;
+
+    private String endCreatedDate;
+
 }
