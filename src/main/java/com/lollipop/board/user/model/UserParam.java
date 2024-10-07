@@ -1,5 +1,6 @@
 package com.lollipop.board.user.model;
 
+import com.lollipop.board.common.model.PaginationParam;
 import lombok.*;
 import org.apache.ibatis.type.Alias;
 
@@ -7,9 +8,9 @@ import org.apache.ibatis.type.Alias;
 @Setter
 @Builder
 @Alias("userParam")
-public class UserParam {
+public class UserParam extends PaginationParam {
 
-    private int userId;
+    private Integer userId;
 
     private String userName;
 

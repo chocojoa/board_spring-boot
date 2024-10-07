@@ -9,6 +9,9 @@ import org.apache.ibatis.type.Alias;
 @Alias("userDTO")
 public class UserDTO {
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private int rowNumber;
+
     private int userId;
 
     private String userName;
@@ -21,7 +24,10 @@ public class UserDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String roleId;
 
-    @JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private int createdBy;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String createdDate;
 
 }

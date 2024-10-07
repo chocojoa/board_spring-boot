@@ -10,7 +10,7 @@ import org.apache.ibatis.type.Alias;
 @Alias("postParam")
 public class PostParam extends PaginationParam {
 
-    private int postId;
+    private Integer postId;
 
     private String categoryId;
 
