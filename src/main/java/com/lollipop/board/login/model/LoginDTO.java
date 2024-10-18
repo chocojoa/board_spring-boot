@@ -1,7 +1,7 @@
 package com.lollipop.board.login.model;
 
 import com.lollipop.board.jwt.JwtToken;
-import com.lollipop.board.user.model.UserDTO;
+import com.lollipop.board.admin.user.model.UserDTO;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

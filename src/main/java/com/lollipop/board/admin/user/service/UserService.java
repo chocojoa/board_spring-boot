@@ -1,9 +1,9 @@
-package com.lollipop.board.user.service;
+package com.lollipop.board.admin.user.service;
 
 import com.lollipop.board.common.model.PaginationDTO;
-import com.lollipop.board.user.mapper.UserMapper;
-import com.lollipop.board.user.model.UserDTO;
-import com.lollipop.board.user.model.UserParam;
+import com.lollipop.board.admin.user.mapper.UserMapper;
+import com.lollipop.board.admin.user.model.UserDTO;
+import com.lollipop.board.admin.user.model.UserParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +17,7 @@ public class UserService {
 
     /**
      * 사용자 목록 조회
+     *
      * @param userParam 검색조건
      * @return 사용자 목록
      */
@@ -28,6 +29,7 @@ public class UserService {
 
     /**
      * 사용자 상세 조회
+     *
      * @param userId 사용자 아이디
      * @return 사용자 정보
      */
@@ -38,6 +40,7 @@ public class UserService {
 
     /**
      * 사용자 생성
+     *
      * @param userDTO 사용자 정보
      * @return 저장된 사용자 정보
      */
@@ -48,6 +51,7 @@ public class UserService {
 
     /**
      * 사용자 수정
+     *
      * @param userDTO 사용자 정보
      * @return 수정된 사용자 정보
      */

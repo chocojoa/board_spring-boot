@@ -4,7 +4,7 @@ import com.lollipop.board.common.model.ApiResponse;
 import com.lollipop.board.login.model.LoginDTO;
 import com.lollipop.board.login.model.LoginParam;
 import com.lollipop.board.login.service.LoginService;
-import com.lollipop.board.user.model.UserDTO;
+import com.lollipop.board.admin.user.model.UserDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
