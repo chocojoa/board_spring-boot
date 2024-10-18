@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lollipop.board.admin.menu.mapper.MenuMapper">
+
+    <select id="selectMenus" parameterType="menuDTO">
+        WITH RECURSIVE CTE AS (
+            SELECT M.ID                 AS MENU_ID
+                 , M.MENU_NAME          AS MENU_NAME
+                 , M.PARENT_MENU_ID     AS PARENT_MENU_ID
+                 , 0                    AS `DEPTH`
+                 , M.SORT_ORDER         AS SORT_ORDER
+                 , M.MENU_URL           AS MENU_URL
+                 , M.ID                 AS GROUP_ID
+            FROM MENU M
+             WHERE PARENT_MENU_ID IS NULL
+               AND USAGE_STATUS = 'Y'
+             UNION ALL
+            SELECT M2.ID                AS MENU_ID
+                 , M2.MENU_NAME         AS MENU_NAME
+                 , M2.PARENT_MENU_ID    AS PARENT_MENU_ID
+                 , CTE.`DEPTH` + 1      AS `DEPTH`
+                 , M2.SORT_ORDER        AS SORT_ORDER
+                 , M2.MENU_URL          AS MENU_URL
+                 , CTE.GROUP_ID         AS GROUP_ID
+              FROM MENU M2
+             INNER JOIN CTE ON M2.PARENT_MENU_ID = CTE.MENU_ID
+             WHERE M2.USAGE_STATUS = 'Y'
+        )
+        SELECT C.MENU_ID            AS menuId
+             , C.MENU_NAME          AS menuName
+             , C.PARENT_MENU_ID     AS parentMenuId
+             , C.GROUP_ID           AS groupId
+             , C.`DEPTH`            AS depth
+             , C.SORT_ORDER         AS sortOrder
+             , C.MENU_URL           AS menuUrl
+             , (SELECT COUNT(*)
+                  FROM MENU
+                 WHERE PARENT_MENU_ID = C.MENU_ID) AS childCount
+          FROM CTE C
+         ORDER BY C.GROUP_ID, C.`DEPTH`, C.SORT_ORDER, C.MENU_NAME
+    </select>
+
+</mapper>
