@@ -1,4 +1,4 @@
-package com.lollipop.board.user.model;
+package com.lollipop.board.admin.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;

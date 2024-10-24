@@ -54,7 +54,7 @@ public class PostController {
      * 게시글 생성
      *
      * @param categoryId 카테고리 아이디
-     * @param postDTO    게시글 아이디
+     * @param postDTO    게시글 정보
      * @return 생성된 게시글 정보
      */
     @PostMapping("/{categoryId}/posts")
@@ -70,7 +70,7 @@ public class PostController {
      *
      * @param categoryId 카테고리 아이디
      * @param postId     게시글 아이디
-     * @param postDTO    게시글 아이디
+     * @param postDTO    게시글 정보
      * @return 수정된 게시글 정보
      */
     @PutMapping("/{categoryId}/posts/{postId}")

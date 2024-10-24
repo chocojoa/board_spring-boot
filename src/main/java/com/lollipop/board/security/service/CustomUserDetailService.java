@@ -1,8 +1,8 @@
 package com.lollipop.board.security.service;
 
-import com.lollipop.board.user.mapper.UserMapper;
-import com.lollipop.board.user.model.UserDTO;
-import com.lollipop.board.user.model.UserParam;
+import com.lollipop.board.admin.user.mapper.UserMapper;
+import com.lollipop.board.admin.user.model.UserDTO;
+import com.lollipop.board.admin.user.model.UserParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

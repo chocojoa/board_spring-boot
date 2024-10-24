@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -61,6 +62,10 @@ public class CustomControllerAdvice {
         log.error(e.getMessage());
         String errorCode = e.getMessage();
         String message = getErrorMessage(errorCode);
+
+        if (!StringUtils.hasText(message)) {
+            message = e.getMessage();
+        }
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .errorCode(errorCode)
