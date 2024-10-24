@@ -8,7 +8,7 @@
             SELECT M.ID                 AS MENU_ID
                  , M.MENU_NAME          AS MENU_NAME
                  , M.PARENT_MENU_ID     AS PARENT_MENU_ID
-                 , 0                    AS `DEPTH`
+                 , 1                    AS `DEPTH`
                  , M.SORT_ORDER         AS SORT_ORDER
                  , M.MENU_URL           AS MENU_URL
                  , M.ID                 AS GROUP_ID
