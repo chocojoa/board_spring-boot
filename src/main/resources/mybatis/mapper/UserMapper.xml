@@ -75,7 +75,7 @@
     </select>
 
     <!-- 이메일 주소로 사용자 정보 조회 -->
-    <select id="selectUserByEmail" parameterType="userParam" resultType="userDTO">
+    <select id="selectUserByEmail" parameterType="java.lang.String" resultType="loginUserDTO">
         SELECT ID           AS userId
              , USER_NAME    AS userName
              , EMAIL        AS email

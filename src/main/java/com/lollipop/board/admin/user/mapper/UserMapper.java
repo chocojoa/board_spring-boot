@@ -1,5 +1,6 @@
 package com.lollipop.board.admin.user.mapper;
 
+import com.lollipop.board.admin.user.model.LoginUserDTO;
 import com.lollipop.board.admin.user.model.UserDTO;
 import com.lollipop.board.admin.user.model.UserParam;
 import org.apache.ibatis.annotations.Mapper;
@@ -36,10 +37,10 @@ public interface UserMapper {
     /**
      * 이메일주소로 사용자 정보 조회
      *
-     * @param userParam 검색조건
+     * @param email 이메일 주소
      * @return 사용자 정보
      */
-    UserDTO selectUserByEmail(UserParam userParam);
+    LoginUserDTO selectUserByEmail(String email);
 
     /**
      * 사용자 정보 저장

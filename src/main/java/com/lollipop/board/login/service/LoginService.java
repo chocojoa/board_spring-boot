@@ -1,5 +1,6 @@
 package com.lollipop.board.login.service;
 
+import com.lollipop.board.admin.user.model.LoginUserDTO;
 import com.lollipop.board.jwt.JwtToken;
 import com.lollipop.board.jwt.JwtTokenProvider;
 import com.lollipop.board.login.model.LoginDTO;
@@ -7,7 +8,6 @@ import com.lollipop.board.login.model.LoginParam;
 import com.lollipop.board.redis.dao.RedisDAO;
 import com.lollipop.board.admin.user.mapper.UserMapper;
 import com.lollipop.board.admin.user.model.UserDTO;
-import com.lollipop.board.admin.user.model.UserParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,9 +57,7 @@ public class LoginService {
         String refreshToken = loginParam.getRefreshToken();
         if (validateRefreshToken(refreshToken)) {
             String username = jwtTokenProvider.extractUsername(refreshToken);
-
-            UserParam userParam = UserParam.builder().email(username).build();
-            UserDTO userDTO = userMapper.selectUserByEmail(userParam);
+            LoginUserDTO userDTO = userMapper.selectUserByEmail(username);
 
             Collection<? extends GrantedAuthority> authorities = jwtTokenProvider.extractAuth(refreshToken);
             UserDetails userDetails = new User(userDTO.getEmail(), "", authorities);
@@ -71,8 +69,7 @@ public class LoginService {
     }
 
     public void signUp(UserDTO userDTO) {
-        UserParam userParam = UserParam.builder().email(userDTO.getEmail()).build();
-        UserDTO user = userMapper.selectUserByEmail(userParam);
+        LoginUserDTO user = userMapper.selectUserByEmail(userDTO.getEmail());
 
         if (user == null) {
             userDTO.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
@@ -91,8 +88,7 @@ public class LoginService {
 
         redisDAO.setValues(username, refreshToken, Duration.ofMillis(refreshTokenExpirationTime));
 
-        UserParam userParam = UserParam.builder().email(username).build();
-        UserDTO user = userMapper.selectUserByEmail(userParam);
+        LoginUserDTO user = userMapper.selectUserByEmail(username);
 
         return LoginDTO.builder().token(token).user(user).build();
     }
@@ -101,8 +97,7 @@ public class LoginService {
 
         String accessToken = jwtTokenProvider.generateAccessToken(username);
         JwtToken token = JwtToken.builder().grantType("Bearer").accessToken(accessToken).refreshToken(refreshToken).build();
-        UserParam userParam = UserParam.builder().email(username).build();
-        UserDTO user = userMapper.selectUserByEmail(userParam);
+        LoginUserDTO user = userMapper.selectUserByEmail(username);
 
         return LoginDTO.builder().token(token).user(user).build();
     }
