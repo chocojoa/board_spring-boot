@@ -1,6 +1,5 @@
 package com.lollipop.board.admin.user.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
