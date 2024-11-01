@@ -26,4 +26,8 @@ public class MenuDTO {
     private Integer sortOrder;
 
     private Integer childCount;
+
+    private Boolean usageStatus;
+
+    private Integer userId;
 }

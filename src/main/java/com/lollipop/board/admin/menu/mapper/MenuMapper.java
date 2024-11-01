@@ -8,12 +8,40 @@ import java.util.List;
 @Mapper
 public interface MenuMapper {
 
+    /**
+     * 메뉴 목록 조회
+     *
+     * @return 메뉴 목록
+     */
     List<MenuDTO> selectMenus();
 
-    void createMenu(MenuDTO menuDTO);
+    /**
+     * 메뉴 상세조회
+     *
+     * @param id 메뉴 아이디
+     * @return 메뉴
+     */
+    MenuDTO selectMenuById(Integer id);
 
+    /**
+     * 메뉴 저장
+     *
+     * @param menuDTO 메뉴 정보
+     */
+    void insertMenu(MenuDTO menuDTO);
+
+    /**
+     * 메뉴 수정
+     *
+     * @param menuDTO 메뉴 정보
+     */
     void updateMenu(MenuDTO menuDTO);
 
+    /**
+     * 메뉴 삭제
+     *
+     * @param menuId 메뉴 아이디
+     */
     void deleteMenu(Integer menuId);
 
 }
