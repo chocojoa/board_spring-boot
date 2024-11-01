@@ -5,6 +5,7 @@ import com.lollipop.board.admin.user.mapper.UserMapper;
 import com.lollipop.board.admin.user.model.UserDTO;
 import com.lollipop.board.admin.user.model.UserParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.List;
 public class UserService {
 
     private final UserMapper userMapper;
+
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 사용자 목록 조회
@@ -33,7 +36,7 @@ public class UserService {
      * @param userId 사용자 아이디
      * @return 사용자 정보
      */
-    public UserDTO retrieveUser(int userId) {
+    public UserDTO retrieveUser(Integer userId) {
         UserParam userParam = UserParam.builder().userId(userId).build();
         return userMapper.selectUser(userParam);
     }
@@ -45,6 +48,7 @@ public class UserService {
      * @return 저장된 사용자 정보
      */
     public UserDTO createUser(UserDTO userDTO) {
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         userMapper.insertUser(userDTO);
         return userDTO;
     }
@@ -56,6 +60,7 @@ public class UserService {
      * @return 수정된 사용자 정보
      */
     public UserDTO modifyUser(UserDTO userDTO) {
+        userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         userMapper.updateUser(userDTO);
         return userDTO;
     }

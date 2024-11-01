@@ -31,7 +31,7 @@
                      , ID           AS userId
                      , USER_NAME    AS userName
                      , EMAIL        AS email
-                     , DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS createdDate
+                     , DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS createdAt
                   FROM USER
                 <where>
                     <if test="userName != null and userName != ''">
@@ -85,7 +85,7 @@
     </select>
 
     <!-- 사용자 정보 저장 -->
-    <insert id="insertUser" parameterType="userDTO">
+    <insert id="insertUser" parameterType="userDTO" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO USER (
               USER_NAME
             , PASSWORD

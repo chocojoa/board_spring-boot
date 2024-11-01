@@ -18,7 +18,6 @@ public class UserDTO {
 
     private String email;
 
-    @JsonIgnore
     private String password;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -29,5 +28,11 @@ public class UserDTO {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String createdDate;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private int modifiedBy;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String modifiedDate;
 
 }
