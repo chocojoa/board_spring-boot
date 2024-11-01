@@ -36,7 +36,7 @@ public class UserController {
      * @return 사용자 정보
      */
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<UserDTO>> retrieveUser(@PathVariable int userId) {
+    public ResponseEntity<ApiResponse<UserDTO>> retrieveUser(@PathVariable Integer userId) {
         UserDTO userDTO = userService.retrieveUser(userId);
         return ResponseEntity.ok().body(ApiResponse.success(userDTO));
     }
@@ -58,8 +58,9 @@ public class UserController {
      *
      * @param userDTO 사용자 정보
      */
-    @PutMapping
-    public ResponseEntity<ApiResponse<UserDTO>> modifyUser(@RequestBody UserDTO userDTO) {
+    @PutMapping("/{userId}")
+    public ResponseEntity<ApiResponse<UserDTO>> modifyUser(@PathVariable Integer userId, @RequestBody UserDTO userDTO) {
+        userDTO.setUserId(userId);
         UserDTO modifiedUserDTO = userService.modifyUser(userDTO);
         return ResponseEntity.ok().body(ApiResponse.success(modifiedUserDTO));
     }

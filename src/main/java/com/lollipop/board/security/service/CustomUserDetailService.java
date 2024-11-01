@@ -1,8 +1,7 @@
 package com.lollipop.board.security.service;
 
 import com.lollipop.board.admin.user.mapper.UserMapper;
-import com.lollipop.board.admin.user.model.UserDTO;
-import com.lollipop.board.admin.user.model.UserParam;
+import com.lollipop.board.admin.user.model.LoginUserDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,8 +21,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserParam userParam = UserParam.builder().email(username).build();
-        UserDTO user = userMapper.selectUserByEmail(userParam);
+        LoginUserDTO user = userMapper.selectUserByEmail(username);
 
         if (user != null) {
             return createUserDetails(user);
@@ -38,7 +36,7 @@ public class CustomUserDetailService implements UserDetailsService {
         return "Cannot find user: " + username;
     }
 
-    private UserDetails createUserDetails(UserDTO userDTO) {
+    private UserDetails createUserDetails(LoginUserDTO userDTO) {
         return new User(userDTO.getEmail(), userDTO.getPassword(), List.of(new SimpleGrantedAuthority("USER")));
     }
 }

@@ -3,7 +3,7 @@
 
 <mapper namespace="com.lollipop.board.admin.menu.mapper.MenuMapper">
 
-    <select id="selectMenus" parameterType="menuDTO">
+    <select id="selectMenus" resultType="menuDTO">
         WITH RECURSIVE CTE AS (
             SELECT M.ID                 AS MENU_ID
                  , M.MENU_NAME          AS MENU_NAME
@@ -13,8 +13,8 @@
                  , M.MENU_URL           AS MENU_URL
                  , M.ID                 AS GROUP_ID
             FROM MENU M
-             WHERE PARENT_MENU_ID IS NULL
-               AND USAGE_STATUS = 'Y'
+             WHERE PARENT_MENU_ID = 0
+               AND USAGE_STATUS = true
              UNION ALL
             SELECT M2.ID                AS MENU_ID
                  , M2.MENU_NAME         AS MENU_NAME
@@ -25,7 +25,7 @@
                  , CTE.GROUP_ID         AS GROUP_ID
               FROM MENU M2
              INNER JOIN CTE ON M2.PARENT_MENU_ID = CTE.MENU_ID
-             WHERE M2.USAGE_STATUS = 'Y'
+             WHERE M2.USAGE_STATUS = true
         )
         SELECT C.MENU_ID            AS menuId
              , C.MENU_NAME          AS menuName
@@ -40,5 +40,58 @@
           FROM CTE C
          ORDER BY C.GROUP_ID, C.`DEPTH`, C.SORT_ORDER, C.MENU_NAME
     </select>
+
+    <!-- 메뉴 상세조회 -->
+    <select id="selectMenuById" parameterType="java.lang.Integer" resultType="menuDTO">
+        SELECT ID                       AS menuId
+             , MENU_NAME                AS menuName
+             , PARENT_MENU_ID           AS parentMenuId
+             , IFNULL(MENU_URL, '')     AS menuUrl
+             , SORT_ORDER               AS sortOrder
+             , USAGE_STATUS             AS usageStatus
+          FROM MENU
+         WHERE ID = #{menuId}
+    </select>
+
+    <!-- 메뉴 저장 -->
+    <insert id="insertMenu" parameterType="menuDTO">
+        INSERT INTO MENU
+            (
+              menu_name
+            , menu_url
+            , parent_menu_id
+            , sort_order
+            , usage_status
+            , created_by
+            , created_at
+            ) VALUES (
+              #{menuName}
+            , #{menuUrl}
+            , #{parentMenuId}
+            , #{sortOrder}
+            , #{usageStatus}
+            , #{userId}
+            , NOW()
+            )
+    </insert>
+
+    <!-- 메뉴 수정 -->
+    <update id="updateMenu" parameterType="menuDTO">
+        UPDATE MENU
+           SET MENU_NAME        = #{menuName}
+             , MENU_URL         = #{menuUrl}
+             , PARENT_MENU_ID   = #{parentMenuId}
+             , SORT_ORDER       = #{sortOrder}
+             , USAGE_STATUS     = #{usageStatus}
+             , MODIFIED_BY      = #{userId}
+             , MODIFIED_AT      = NOW()
+         WHERE ID = #{menuId}
+    </update>
+
+    <!-- 메뉴 삭제 -->
+    <delete id="deleteMenu" parameterType="java.lang.Integer">
+        DELETE FROM MENU
+         WHERE ID = #{menuId}
+    </delete>
 
 </mapper>
