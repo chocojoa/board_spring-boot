@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 @Setter
 public class ApiResponse<T> {
 
-    private String status;
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String message;
 
@@ -22,19 +20,18 @@ public class ApiResponse<T> {
     @Setter
     private Long processingTimeMs;
 
-    public ApiResponse(String status, String message, T data) {
-        this.status = status;
+    public ApiResponse(String message, T data) {
         this.message = message;
         this.data = data;
         this.timestamp = LocalDateTime.now().toString();
     }
 
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>("success", null, data);
+        return new ApiResponse<>(null, data);
     }
 
     public static <T> ApiResponse<T> error(String message) {
-        return new ApiResponse<>("error", message, null);
+        return new ApiResponse<>(message, null);
     }
 
 }
