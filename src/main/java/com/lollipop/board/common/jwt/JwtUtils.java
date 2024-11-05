@@ -19,7 +19,7 @@ public class JwtUtils {
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String errorMessage = objectMapper.writeValueAsString(errorResponse.toString());
+        String errorMessage = objectMapper.writeValueAsString(errorResponse);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         response.setStatus(statusCode);
