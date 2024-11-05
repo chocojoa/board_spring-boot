@@ -69,6 +69,7 @@
     <!-- 게시글 정보 조회 -->
     <select id="selectPost" parameterType="postParam" resultType="postDTO">
         SELECT P.ID             AS postId
+             , P.CATEGORY_ID    AS categoryId
              , P.TITLE          AS title
              , P.CONTENT        AS content
              , P.VIEW_COUNT     AS viewCount
