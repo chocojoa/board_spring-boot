@@ -26,12 +26,12 @@ public class UserDTO {
     private int createdBy;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String createdDate;
+    private String createdAt;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private int modifiedBy;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String modifiedDate;
+    private String modifiedAt;
 
 }
