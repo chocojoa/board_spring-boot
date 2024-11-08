@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +61,11 @@ public class UserService {
      * @return 수정된 사용자 정보
      */
     public UserDTO modifyUser(UserDTO userDTO) {
+        UserParam userParam = UserParam.builder().userId(userDTO.getUserId()).build();
+        UserDTO user = userMapper.selectUser(userParam);
+        if (user == null) {
+            throw new NoSuchElementException("user not found");
+        }
         userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         userMapper.updateUser(userDTO);
         return userDTO;

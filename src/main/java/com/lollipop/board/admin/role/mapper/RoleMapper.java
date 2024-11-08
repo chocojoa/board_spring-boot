@@ -10,12 +10,28 @@ import java.util.List;
 public interface RoleMapper {
 
     /**
+     * 권한개수 조회
+     *
+     * @param roleParam 검색조건
+     * @return 권한개수
+     */
+    Integer selectRoleCount(RoleParam roleParam);
+
+    /**
      * 권한목록 조회
      *
      * @param roleParam 검색조건
      * @return 권한목록
      */
     List<RoleDTO> selectRoleList(RoleParam roleParam);
+
+    /**
+     * 권한정보 조회
+     *
+     * @param roleId 권한 아이디
+     * @return 권한정보
+     */
+    RoleDTO selectRoleById(Integer roleId);
 
     /**
      * 권한생성
@@ -34,7 +50,7 @@ public interface RoleMapper {
     /**
      * 권한삭제
      *
-     * @param roleDTO 권한정보
+     * @param roleId 권한아이디
      */
-    void deleteRole(RoleDTO roleDTO);
+    void deleteRoleById(Integer roleId);
 }

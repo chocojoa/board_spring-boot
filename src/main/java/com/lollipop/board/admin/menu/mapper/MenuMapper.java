@@ -44,4 +44,12 @@ public interface MenuMapper {
      */
     void deleteMenu(Integer menuId);
 
+    /**
+     * 네비게이션 메뉴 조회
+     *
+     * @param menuName 메뉴명
+     * @return 메뉴 목록
+     */
+    List<MenuDTO> selectBreadcrumbs(String menuName);
+
 }

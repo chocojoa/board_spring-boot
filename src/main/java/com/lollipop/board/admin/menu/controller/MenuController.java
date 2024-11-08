@@ -74,4 +74,16 @@ public class MenuController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
+    /**
+     * 네비게이션 메뉴 조회
+     *
+     * @param menuName 메뉴 조회
+     * @return 메뉴 목록
+     */
+    @GetMapping("/breadcrumbs")
+    public ResponseEntity<ApiResponse<List<MenuDTO>>> retrieveBreadcrumbs(String menuName) {
+        List<MenuDTO> breadcrumbs = menuService.selectBreadcrumbs(menuName);
+        return ResponseEntity.ok(ApiResponse.success(breadcrumbs));
+    }
+
 }

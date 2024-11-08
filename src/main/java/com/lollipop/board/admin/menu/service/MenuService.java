@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +51,10 @@ public class MenuService {
      * @return 수정된 메뉴
      */
     public MenuDTO modifyMenu(MenuDTO menuDTO) {
+        MenuDTO menu = menuMapper.selectMenuById(menuDTO.getMenuId());
+        if (menu == null) {
+            throw new NoSuchElementException("menu not found");
+        }
         menuMapper.updateMenu(menuDTO);
         return menuDTO;
     }
@@ -60,6 +65,14 @@ public class MenuService {
      * @param menuId 메뉴 아이디
      */
     public void removeMenu(Integer menuId) {
+        MenuDTO menu = menuMapper.selectMenuById(menuId);
+        if (menu == null) {
+            throw new NoSuchElementException("menu not found");
+        }
         menuMapper.deleteMenu(menuId);
+    }
+
+    public List<MenuDTO> selectBreadcrumbs(String menuName) {
+        return menuMapper.selectBreadcrumbs(menuName);
     }
 }

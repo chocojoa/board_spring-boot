@@ -1,15 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.lollipop.board.post.mapper.RoleMapper">
+<mapper namespace="com.lollipop.board.admin.role.mapper.RoleMapper">
+
+    <select id="selectRoleCount" resultType="java.lang.Integer">
+        SELECT COUNT(R.ID) AS totalCount
+          FROM ROLE R
+         INNER JOIN USER U ON R.CREATED_BY = U.ID
+    </select>
 
     <!-- 권한목록 조회 -->
     <select id="selectRoleList" parameterType="roleParam" resultType="roleDTO">
-        SELECT ID           AS id
-             , ROLE_NAME    AS roleName
-             , DESCRIPTION  AS description
-          FROM ROLE
-         ORDER BY ID DESC
+        SELECT *
+          FROM (
+                SELECT ROW_NUMBER() OVER(ORDER BY R.ID)         AS rowNumber
+                     , R.ID                                     AS roleId
+                     , R.ROLE_NAME                              AS roleName
+                     , R.DESCRIPTION                            AS description
+                     , DATE_FORMAT(R.CREATED_AT, '%Y-%m-%d')    AS createdAt
+                     , U.USER_NAME                              AS createdBy
+                  FROM ROLE R
+                 INNER JOIN USER U ON R.CREATED_BY = U.ID
+                ) A
+        <if test="sortColumn != null">
+            ORDER BY ${sortColumn} ${sortDirection}
+        </if>
+        <if test="pageSize > 0">
+            LIMIT #{startIndex}, #{pageSize}
+        </if>
+    </select>
+
+    <!-- 권한조회 -->
+    <select id="selectRoleById" parameterType="java.lang.Integer" resultType="roleDTO">
+        SELECT R.ID             AS roleId
+             , R.ROLE_NAME      AS roleName
+             , R.DESCRIPTION    AS description
+             , R.CREATED_AT     AS createdAt
+             , U.USER_NAME      AS createdBy
+          FROM ROLE R
+         INNER JOIN USER U ON R.CREATED_BY = U.ID
+         WHERE R.ID = #{roleId}
     </select>
 
     <!-- 권한저장 -->
@@ -38,7 +68,7 @@
     </update>
 
     <!-- 권한삭제 -->
-    <delete id="deleteRole" parameterType="roleDTO">
+    <delete id="deleteRoleById" parameterType="java.lang.Integer">
         DELETE FROM ROLE
          WHERE ID = #{roleId}
     </delete>
