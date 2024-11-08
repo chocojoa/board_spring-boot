@@ -4,11 +4,10 @@ import com.lollipop.board.common.model.ApiResponse;
 import com.lollipop.board.admin.role.model.RoleDTO;
 import com.lollipop.board.admin.role.model.RoleParam;
 import com.lollipop.board.admin.role.service.RoleService;
+import com.lollipop.board.common.model.PaginationDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/roles")
@@ -24,9 +23,21 @@ public class RoleController {
      * @return 권한 목록
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<RoleDTO>>> retrieveRoleList(RoleParam roleParam) {
-        List<RoleDTO> roleList = roleService.retrieveRoleList(roleParam);
+    public ResponseEntity<ApiResponse<PaginationDTO<RoleDTO>>> retrieveRoleList(RoleParam roleParam) {
+        PaginationDTO<RoleDTO> roleList = roleService.retrieveRoleList(roleParam);
         return ResponseEntity.ok(ApiResponse.success(roleList));
+    }
+
+    /**
+     * 권한 조회
+     *
+     * @param roleId 권한 아이디
+     * @return 권한
+     */
+    @GetMapping("/{roleId}")
+    public ResponseEntity<ApiResponse<RoleDTO>> retrieveRole(@PathVariable Integer roleId) {
+        RoleDTO role = roleService.retrieveRoleById(roleId);
+        return ResponseEntity.ok(ApiResponse.success(role));
     }
 
     /**
@@ -36,7 +47,7 @@ public class RoleController {
      * @return 저장된 권한 정보
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<RoleDTO>> createRole(RoleDTO roleDTO) {
+    public ResponseEntity<ApiResponse<RoleDTO>> createRole(@RequestBody RoleDTO roleDTO) {
         RoleDTO savedRoleDTO = roleService.createRole(roleDTO);
         return ResponseEntity.ok().body(ApiResponse.success(savedRoleDTO));
     }
@@ -49,8 +60,8 @@ public class RoleController {
      * @return 수정된 권한 정보
      */
     @PutMapping("/{roleId}")
-    public ResponseEntity<ApiResponse<RoleDTO>> modifyRole(@PathVariable Integer roleId, RoleDTO roleDTO) {
-        roleDTO.setId(roleId);
+    public ResponseEntity<ApiResponse<RoleDTO>> modifyRole(@PathVariable Integer roleId, @RequestBody RoleDTO roleDTO) {
+        roleDTO.setRoleId(roleId);
         RoleDTO savedRoleDTO = roleService.modifyRole(roleDTO);
         return ResponseEntity.ok().body(ApiResponse.success(savedRoleDTO));
     }
@@ -58,14 +69,12 @@ public class RoleController {
     /**
      * 권한 삭제
      *
-     * @param roleId  권한 아이디
-     * @param roleDTO 권한 정보
+     * @param roleId 권한 아이디
      * @return 삭제된 권한 정보
      */
     @DeleteMapping("/{roleId}")
-    public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable Integer roleId, RoleDTO roleDTO) {
-        roleDTO.setId(roleId);
-        roleService.deleteRole(roleDTO);
+    public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable Integer roleId) {
+        roleService.deleteRole(roleId);
         return ResponseEntity.ok().body(ApiResponse.success(null));
     }
 }

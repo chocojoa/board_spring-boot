@@ -11,10 +11,18 @@ import org.apache.ibatis.type.Alias;
 @Alias("roleDTO")
 public class RoleDTO {
 
-    private Integer id;
+    private Integer rowNumber;
+
+    private Integer roleId;
 
     private String roleName;
 
     private String description;
+
+    private String createdAt;
+
+    private String createdBy;
+
+    private Integer userId;
 
 }
