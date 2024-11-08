@@ -12,7 +12,7 @@
                  , M.SORT_ORDER         AS SORT_ORDER
                  , M.MENU_URL           AS MENU_URL
                  , M.ID                 AS GROUP_ID
-            FROM MENU M
+              FROM MENU M
              WHERE PARENT_MENU_ID = 0
                AND USAGE_STATUS = true
              UNION ALL
@@ -93,5 +93,31 @@
         DELETE FROM MENU
          WHERE ID = #{menuId}
     </delete>
+
+    <!-- 네비게이션 메뉴 조회 -->
+    <select id="selectBreadcrumbs" parameterType="java.lang.String" resultType="menuDTO">
+        WITH RECURSIVE CTE AS (
+            SELECT M.ID                 AS MENU_ID
+                 , M.MENU_NAME          AS MENU_NAME
+                 , M.PARENT_MENU_ID     AS PARENT_MENU_ID
+                 , M.MENU_URL           AS MENU_URL
+              FROM MENU M
+             WHERE M.MENU_NAME = #{menuName}
+               AND USAGE_STATUS = true
+             UNION ALL
+            SELECT M2.ID                AS MENU_ID
+                 , M2.MENU_NAME         AS MENU_NAME
+                 , M2.PARENT_MENU_ID    AS PARENT_MENU_ID
+                 , M2.MENU_URL          AS MENU_URL
+              FROM MENU M2
+             INNER JOIN CTE ON M2.ID = CTE.PARENT_MENU_ID
+             WHERE M2.USAGE_STATUS = true
+        )
+        SELECT C.MENU_ID            AS menuId
+             , C.MENU_NAME          AS menuName
+             , C.MENU_URL           AS menuUrl
+          FROM CTE C
+         ORDER BY C.PARENT_MENU_ID, C.MENU_ID
+    </select>
 
 </mapper>
