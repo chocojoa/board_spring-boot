@@ -20,14 +20,13 @@ public class ApiResponse<T> {
     @Setter
     private Long processingTimeMs;
 
-    public ApiResponse(String message, T data) {
-        this.message = message;
+    public ApiResponse(T data) {
         this.data = data;
         this.timestamp = LocalDateTime.now().toString();
     }
 
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>(null, data);
+        return new ApiResponse<>(data);
     }
-    
+
 }

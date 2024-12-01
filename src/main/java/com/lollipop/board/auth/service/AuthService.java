@@ -86,7 +86,7 @@ public class AuthService {
 
         JwtToken token = JwtToken.builder().grantType("Bearer").accessToken(accessToken).refreshToken(refreshToken).build();
 
-        redisDAO.setValues(username, refreshToken, Duration.ofMillis(refreshTokenExpirationTime));
+        redisDAO.setValues(username, refreshToken, Duration.ofSeconds(refreshTokenExpirationTime));
 
         LoginUserDTO user = userMapper.selectUserByEmail(username);
 

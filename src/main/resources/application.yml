@@ -4,8 +4,8 @@ mybatis:
   type-aliases-package: com.lollipop.board
 jwt:
   secretKey: 96423523c3bfa827b61396c063edcc6c84c957ec9ab76759dcc57c247c77f10e
-  accessTokenExpirationMs: 3600000
-  refreshTokenExpirationMs: 86400000
+  accessTokenExpirationMs: 3600
+  refreshTokenExpirationMs: 864000
 spring:
   datasource:
     driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
