@@ -49,7 +49,7 @@ public class JwtTokenProvider {
 
     private String createToken(Map<String, Object> claims, String subject, long expiration) {
         Date now = new Date();
-        Date validity = new Date(System.currentTimeMillis() + expiration);
+        Date validity = new Date(System.currentTimeMillis() + expiration * 1000);
 
         return Jwts.builder()
                 .claims(claims)

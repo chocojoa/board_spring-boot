@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lollipop.board.admin.role.mapper.MenuRoleMapper">
+
+    <select id="selectMenuRoleList" parameterType="java.lang.Integer" resultType="menuRoleDTO">
+        WITH RECURSIVE CTE AS (
+            SELECT M.ID                 AS MENU_ID
+                 , M.MENU_NAME          AS MENU_NAME
+                 , M.PARENT_MENU_ID     AS PARENT_MENU_ID
+                 , 1                    AS `DEPTH`
+                 , M.SORT_ORDER         AS SORT_ORDER
+                 , M.MENU_URL           AS MENU_URL
+                 , M.ID                 AS GROUP_ID
+              FROM MENU M
+             WHERE PARENT_MENU_ID = 0
+               AND USAGE_STATUS = true
+             UNION ALL
+            SELECT M2.ID                AS MENU_ID
+                 , M2.MENU_NAME         AS MENU_NAME
+                 , M2.PARENT_MENU_ID    AS PARENT_MENU_ID
+                 , CTE.`DEPTH` + 1      AS `DEPTH`
+                 , M2.SORT_ORDER        AS SORT_ORDER
+                 , M2.MENU_URL          AS MENU_URL
+                 , CTE.GROUP_ID         AS GROUP_ID
+              FROM MENU M2
+             INNER JOIN CTE ON M2.PARENT_MENU_ID = CTE.MENU_ID
+             WHERE M2.USAGE_STATUS = true
+        )
+        SELECT A.MENU_ID
+             , A.MENU_NAME
+             , A.PARENT_MENU_ID
+             , A.GROUP_ID
+             , A.DEPTH
+             , A.SORT_ORDER
+             , A.MENU_URL
+             , A.CHILD_COUNT
+             , IF(A.CHILD_COUNT > 0 AND A.CHILD_COUNT != A.CHILD_CHECKED_COUNT, true, false) AS HALF_CHECKED
+             , CASE WHEN A.CHILD_COUNT > 0 AND A.CHILD_COUNT = A.CHILD_CHECKED_COUNT THEN true
+                    WHEN A.CHILD_COUNT = 0 AND A.CHECKED IS true THEN true
+                    ELSE false END AS CHECKED
+          FROM (
+                SELECT C.MENU_ID
+                     , C.MENU_NAME
+                     , C.PARENT_MENU_ID
+                     , C.GROUP_ID
+                     , C.`DEPTH`
+                     , C.SORT_ORDER
+                     , C.MENU_URL
+                     , (SELECT COUNT(*)
+                          FROM MENU
+                         WHERE PARENT_MENU_ID = C.MENU_ID) AS CHILD_COUNT
+                     , (SELECT COUNT(MR.MENU_ID)
+                          FROM MENU M
+                          LEFT JOIN MENU_ROLE MR ON M.ID = MR.MENU_ID AND MR.ROLE_ID = #{roleId}
+                         WHERE M.PARENT_MENU_ID = C.MENU_ID) AS CHILD_CHECKED_COUNT
+                     , IF(RM.MENU_ID IS NOT NULL, true, false) AS CHECKED
+                  FROM CTE C
+                  LEFT JOIN MENU_ROLE RM ON C.MENU_ID = RM.MENU_ID AND RM.ROLE_ID = #{roleId}
+               ) A
+         ORDER BY A.GROUP_ID, A.`DEPTH`, A.SORT_ORDER, A.MENU_NAME
+    </select>
+
+    <!-- 권한별 메뉴 저장 -->
+    <insert id="insertMenuRole" parameterType="menuRoleDTO">
+        INSERT INTO MENU_ROLE(ROLE_ID, MENU_ID, CREATED_BY)
+        SELECT #{roleId}, M.ID, #{createdBy}
+          FROM MENU M
+         WHERE M.ID IN <foreach collection="addMenuList" item="menuId" open="(" separator="," close=")">#{menuId}</foreach>
+    </insert>
+
+    <!-- 권한별 메뉴 삭제 -->
+    <delete id="deleteMenuRole" parameterType="menuRoleDTO">
+        DELETE FROM MENU_ROLE
+         WHERE ROLE_ID = #{roleId}
+    </delete>
+
+</mapper>
