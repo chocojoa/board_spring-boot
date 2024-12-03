@@ -11,6 +11,7 @@
                  , 1                    AS `DEPTH`
                  , M.SORT_ORDER         AS SORT_ORDER
                  , M.MENU_URL           AS MENU_URL
+                 , M.ICON               AS ICON
                  , M.ID                 AS GROUP_ID
               FROM MENU M
              WHERE PARENT_MENU_ID = 0
@@ -22,6 +23,7 @@
                  , CTE.`DEPTH` + 1      AS `DEPTH`
                  , M2.SORT_ORDER        AS SORT_ORDER
                  , M2.MENU_URL          AS MENU_URL
+                 , M2.ICON              AS ICON
                  , CTE.GROUP_ID         AS GROUP_ID
               FROM MENU M2
              INNER JOIN CTE ON M2.PARENT_MENU_ID = CTE.MENU_ID
@@ -34,6 +36,7 @@
              , C.`DEPTH`            AS depth
              , C.SORT_ORDER         AS sortOrder
              , C.MENU_URL           AS menuUrl
+             , C.ICON               AS icon
              , (SELECT COUNT(*)
                   FROM MENU
                  WHERE PARENT_MENU_ID = C.MENU_ID) AS childCount
@@ -49,6 +52,7 @@
              , IFNULL(MENU_URL, '')     AS menuUrl
              , SORT_ORDER               AS sortOrder
              , USAGE_STATUS             AS usageStatus
+             , IFNULL(ICON, '')         AS icon
           FROM MENU
          WHERE ID = #{menuId}
     </select>
@@ -57,19 +61,21 @@
     <insert id="insertMenu" parameterType="menuDTO">
         INSERT INTO MENU
             (
-              menu_name
-            , menu_url
-            , parent_menu_id
-            , sort_order
-            , usage_status
-            , created_by
-            , created_at
+              MENU_NAME
+            , MENU_URL
+            , PARENT_MENU_ID
+            , SORT_ORDER
+            , USAGE_STATUS
+            , ICON
+            , CREATED_BY
+            , CREATED_AT
             ) VALUES (
               #{menuName}
             , #{menuUrl}
             , #{parentMenuId}
             , #{sortOrder}
             , #{usageStatus}
+            , #{icon}
             , #{userId}
             , NOW()
             )
@@ -83,6 +89,7 @@
              , PARENT_MENU_ID   = #{parentMenuId}
              , SORT_ORDER       = #{sortOrder}
              , USAGE_STATUS     = #{usageStatus}
+             , ICON             = #{icon}
              , MODIFIED_BY      = #{userId}
              , MODIFIED_AT      = NOW()
          WHERE ID = #{menuId}

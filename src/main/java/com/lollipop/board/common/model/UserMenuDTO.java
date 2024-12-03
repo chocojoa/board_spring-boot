@@ -28,5 +28,7 @@ public class UserMenuDTO {
     private Integer sortOrder;
 
     private Integer childCount;
-    
+
+    private String icon;
+
 }

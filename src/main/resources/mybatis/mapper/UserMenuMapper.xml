@@ -9,6 +9,7 @@
              , C.PARENT_MENU_ID     AS parentMenuId
              , C.MENU_URL           AS menuUrl
              , C.SORT_ORDER         AS sortOrder
+             , C.ICON               AS icon
              , (SELECT COUNT(*)
                 FROM MENU
                 WHERE PARENT_MENU_ID = C.MENU_ID) AS childCount
@@ -18,6 +19,7 @@
                    , MAX(M.PARENT_MENU_ID)  AS PARENT_MENU_ID
                    , MAX(M.MENU_URL)        AS MENU_URL
                    , MAX(M.SORT_ORDER)      AS SORT_ORDER
+                   , MAX(M.ICON)            AS ICON
                 FROM MENU M
                INNER JOIN MENU_ROLE MR ON M.ID = MR.MENU_ID
                INNER JOIN USER_ROLE UR ON MR.ROLE_ID = UR.ROLE_ID

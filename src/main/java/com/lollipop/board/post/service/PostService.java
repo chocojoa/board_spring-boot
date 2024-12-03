@@ -1,5 +1,6 @@
 package com.lollipop.board.post.service;
 
+import com.lollipop.board.common.redis.dao.RedisDAO;
 import com.lollipop.board.post.mapper.PostMapper;
 import com.lollipop.board.post.model.PostDTO;
 import com.lollipop.board.post.model.PostParam;
@@ -9,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -18,6 +22,7 @@ import java.util.NoSuchElementException;
 public class PostService {
 
     private final PostMapper postMapper;
+    private final RedisDAO redisDAO;
 
     /**
      * 게시글 목록 조회
@@ -38,7 +43,8 @@ public class PostService {
      * @param postId     게시글 아이디
      * @return 게시글 정보
      */
-    public PostDTO retrievePost(String categoryId, int postId) {
+    public PostDTO retrievePost(String categoryId, Integer postId, Integer userId) {
+        modifyPostViewCount(categoryId, postId, userId);
         PostParam postParam = new PostParam();
         postParam.setCategoryId(categoryId);
         postParam.setPostId(postId);
@@ -47,6 +53,37 @@ public class PostService {
             throw new NoSuchElementException("Post not found");
         }
         return postDTO;
+    }
+
+    /**
+     * 게시글 조회수 수정
+     *
+     * @param categoryId 카테고리 아이디
+     * @param postId     게시글 아이디
+     * @param userId     사용자 아이디
+     */
+    private void modifyPostViewCount(String categoryId, Integer postId, Integer userId) {
+        String redisPostViewKey = "postView_" + userId;
+        String postView = redisDAO.getValues(redisPostViewKey);
+
+        PostDTO postDTO = new PostDTO();
+        postDTO.setCategoryId(categoryId);
+        postDTO.setPostId(postId);
+
+        if (postView == null) {
+            redisDAO.setValues(redisPostViewKey, postId.toString(), Duration.ofDays(1));
+            postMapper.updateViewCount(postDTO);
+        } else {
+            String[] views = postView.split(",");
+            List<String> viewList = new ArrayList<>(Arrays.asList(views));
+
+            if (!viewList.contains(postId.toString())) {
+                viewList.add(postId.toString());
+                String viewListStr = String.join(",", viewList);
+                redisDAO.setValues(redisPostViewKey, viewListStr, Duration.ofDays(1));
+                postMapper.updateViewCount(postDTO);
+            }
+        }
     }
 
     /**

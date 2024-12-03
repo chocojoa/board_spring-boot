@@ -1,5 +1,7 @@
 package com.lollipop.board.auth.service;
 
+import com.lollipop.board.admin.role.mapper.UserRoleMapper;
+import com.lollipop.board.admin.role.model.UserRoleDTO;
 import com.lollipop.board.admin.user.model.LoginUserDTO;
 import com.lollipop.board.common.jwt.JwtToken;
 import com.lollipop.board.common.jwt.JwtTokenProvider;
@@ -24,6 +26,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -33,10 +36,11 @@ public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final UserMapper userMapper;
     private final RedisDAO redisDAO;
+    private final UserMapper userMapper;
+    private final UserRoleMapper userRoleMapper;
 
-    @Value("${jwt.refreshTokenExpirationMs}")
+    @Value("${jwt.refreshTokenExpirationTime}")
     private long refreshTokenExpirationTime;
 
     public AuthDTO signIn(AuthParam authParam) {
@@ -74,6 +78,15 @@ public class AuthService {
         if (user == null) {
             userDTO.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
             userMapper.insertUser(userDTO);
+
+            //일반사용자 권한추가
+            Integer userId = userDTO.getUserId();
+            List<Integer> addUserList = List.of(userId);
+            UserRoleDTO userRoleDTO = new UserRoleDTO();
+            userRoleDTO.setRoleId(1);
+            userRoleDTO.setCreatedBy(userId);
+            userRoleDTO.setAddUserList(addUserList);
+            userRoleMapper.insertUserRole(userRoleDTO);
         } else {
             throw new RuntimeException("이미 등록된 계정이 있습니다.");
         }
@@ -86,7 +99,7 @@ public class AuthService {
 
         JwtToken token = JwtToken.builder().grantType("Bearer").accessToken(accessToken).refreshToken(refreshToken).build();
 
-        redisDAO.setValues(username, refreshToken, Duration.ofSeconds(refreshTokenExpirationTime));
+        redisDAO.setValues("token_" + username, refreshToken, Duration.ofSeconds(refreshTokenExpirationTime));
 
         LoginUserDTO user = userMapper.selectUserByEmail(username);
 
@@ -105,7 +118,7 @@ public class AuthService {
     public boolean validateRefreshToken(String refreshToken) {
         if (StringUtils.hasText(refreshToken) && jwtTokenProvider.validateToken(refreshToken)) {
             String username = jwtTokenProvider.extractUsername(refreshToken);
-            String savedRefreshToken = redisDAO.getValues(username);
+            String savedRefreshToken = redisDAO.getValues("token_" + username);
             if (savedRefreshToken == null) {
                 return false;
             }
@@ -116,9 +129,6 @@ public class AuthService {
 
     public void signOut(AuthParam authParam) {
         String username = jwtTokenProvider.extractUsername(authParam.getRefreshToken());
-        Boolean result = redisDAO.deleteValues(username);
-        if (!result) {
-            throw new RuntimeException("로그아웃 도중 문제가 발생하였습니다.");
-        }
+        redisDAO.deleteValues("token_" + username);
     }
 }

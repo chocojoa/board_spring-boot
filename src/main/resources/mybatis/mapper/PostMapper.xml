@@ -73,9 +73,10 @@
              , P.TITLE          AS title
              , P.CONTENT        AS content
              , P.VIEW_COUNT     AS viewCount
-             , P.CREATED_BY     AS author
+             , U.USER_NAME      AS author
              , DATE_FORMAT(P.CREATED_AT, '%Y-%m-%d %H:%i')  AS createdDate
           FROM POST P
+         INNER JOIN USER U ON P.CREATED_BY = U.ID
          WHERE P.CATEGORY_ID = #{categoryId}
            AND P.ID = #{postId}
     </select>
@@ -114,6 +115,14 @@
         </set>
         WHERE CATEGORY_ID = #{categoryId}
           AND ID = #{postId}
+    </update>
+
+    <!-- 게시글 조회수 수정 -->
+    <update id="updateViewCount" parameterType="postDTO">
+        UPDATE POST
+           SET VIEW_COUNT = VIEW_COUNT + 1
+         WHERE CATEGORY_ID = #{categoryId}
+           AND ID = #{postId}
     </update>
 
     <!-- 댓글 목록 조회 -->
