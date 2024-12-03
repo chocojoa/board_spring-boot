@@ -28,7 +28,7 @@ public class PostController {
      */
     @GetMapping("/{categoryId}/posts")
     public ResponseEntity<ApiResponse<PaginationDTO<PostDTO>>> retrievePostList(
-            @PathVariable("categoryId") String categoryId,
+            @PathVariable(value = "categoryId") String categoryId,
             PostParam postParam) {
         postParam.setCategoryId(categoryId);
         PaginationDTO<PostDTO> postList = postService.retrievePostList(postParam);
@@ -44,9 +44,10 @@ public class PostController {
      */
     @GetMapping("/{categoryId}/posts/{postId}")
     public ResponseEntity<ApiResponse<PostDTO>> retrievePost(
-            @PathVariable("categoryId") String categoryId,
-            @PathVariable("postId") int postId) {
-        PostDTO post = postService.retrievePost(categoryId, postId);
+            @PathVariable(value = "categoryId") String categoryId,
+            @PathVariable(value = "postId") Integer postId,
+            @RequestParam(value = "userId") Integer userId) {
+        PostDTO post = postService.retrievePost(categoryId, postId, userId);
         return ResponseEntity.ok().body(ApiResponse.success(post));
     }
 
@@ -59,7 +60,7 @@ public class PostController {
      */
     @PostMapping("/{categoryId}/posts")
     public ResponseEntity<ApiResponse<PostDTO>> createPost(
-            @PathVariable("categoryId") String categoryId,
+            @PathVariable(value = "categoryId") String categoryId,
             @RequestBody PostDTO postDTO) {
         PostDTO savedPostDTO = postService.createPost(categoryId, postDTO);
         return ResponseEntity.ok().body(ApiResponse.success(savedPostDTO));
@@ -75,8 +76,8 @@ public class PostController {
      */
     @PutMapping("/{categoryId}/posts/{postId}")
     public ResponseEntity<ApiResponse<PostDTO>> modifyPost(
-            @PathVariable("categoryId") String categoryId,
-            @PathVariable("postId") int postId,
+            @PathVariable(value = "categoryId") String categoryId,
+            @PathVariable(value = "postId") int postId,
             @RequestBody PostDTO postDTO) {
         PostDTO modifiedPostDTO = postService.modifyPost(categoryId, postId, postDTO);
         return ResponseEntity.ok().body(ApiResponse.success(modifiedPostDTO));
@@ -91,8 +92,8 @@ public class PostController {
      */
     @GetMapping("/{categoryId}/posts/{postId}/comments")
     public ResponseEntity<ApiResponse<List<CommentDTO>>> retrieveCommentList(
-            @PathVariable("categoryId") String categoryId,
-            @PathVariable("postId") int postId) {
+            @PathVariable(value = "categoryId") String categoryId,
+            @PathVariable(value = "postId") int postId) {
         List<CommentDTO> commentList = postService.retrieveCommentList(categoryId, postId);
         return ResponseEntity.ok().body(ApiResponse.success(commentList));
     }
@@ -107,8 +108,8 @@ public class PostController {
      */
     @PostMapping("/{categoryId}/posts/{postId}/comments")
     public ResponseEntity<ApiResponse<CommentDTO>> createComment(
-            @PathVariable("categoryId") String categoryId,
-            @PathVariable("postId") int postId,
+            @PathVariable(value = "categoryId") String categoryId,
+            @PathVariable(value = "postId") int postId,
             @RequestBody CommentDTO commentDTO) {
         CommentDTO createdCommentDTO = postService.createComment(categoryId, postId, commentDTO);
         return ResponseEntity.ok().body(ApiResponse.success(createdCommentDTO));

@@ -25,10 +25,10 @@ public class JwtTokenProvider {
 
     private final SecretKey key;
 
-    @Value("${jwt.accessTokenExpirationMs}")
+    @Value("${jwt.accessTokenExpirationTime}")
     private long accessTokenExpirationTime;
 
-    @Value("${jwt.refreshTokenExpirationMs}")
+    @Value("${jwt.refreshTokenExpirationTime}")
     private long refreshTokenExpirationTime;
 
     public JwtTokenProvider(@Value("${jwt.secretKey}") String secretKey) {

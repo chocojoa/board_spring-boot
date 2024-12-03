@@ -12,6 +12,7 @@ public interface PostMapper {
 
     /**
      * 게시글 전체 개수 조회
+     *
      * @param postParam 검색조건
      * @return 게시글 개수
      */
@@ -19,6 +20,7 @@ public interface PostMapper {
 
     /**
      * 게시글 목록 조회
+     *
      * @param postParam 검색조건
      * @return 게시글 목록
      */
@@ -26,6 +28,7 @@ public interface PostMapper {
 
     /**
      * 게시글 조회
+     *
      * @param postParam 검색조건
      * @return 게시글 정보
      */
@@ -33,18 +36,28 @@ public interface PostMapper {
 
     /**
      * 게시글 저장
+     *
      * @param postDTO 게시글 정보
      */
     void insertPost(PostDTO postDTO);
 
     /**
      * 게시글 수정
+     *
      * @param postDTO 게시글 정보
      */
     void updatePost(PostDTO postDTO);
 
     /**
+     * 게시글 조회수 수정
+     *
+     * @param postDTO 게시글 정보
+     */
+    void updateViewCount(PostDTO postDTO);
+
+    /**
      * 댓글 목록 조회
+     *
      * @param postParam 검색조건
      * @return 댓글 목록
      */
@@ -52,6 +65,7 @@ public interface PostMapper {
 
     /**
      * 댓글 저장
+     *
      * @param commentDTO 댓글 정보
      */
     void insertComment(CommentDTO commentDTO);

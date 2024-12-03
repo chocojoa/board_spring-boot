@@ -29,5 +29,7 @@ public class MenuDTO {
 
     private Boolean usageStatus;
 
+    private String icon;
+
     private Integer userId;
 }

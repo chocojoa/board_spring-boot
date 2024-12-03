@@ -6,6 +6,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -51,6 +52,12 @@ public class CustomControllerAdvice {
     protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException e, HttpServletRequest request) {
         String message = "Malformed JSON request. Please ensure the request body is correctly formatted.";
         return buildErrorResponse(e, request, HttpStatus.BAD_REQUEST, message);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    protected ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException e, HttpServletRequest request) {
+        String message = "Bad credentials provided. Please check your credentials.";
+        return buildErrorResponse(e, request, HttpStatus.UNAUTHORIZED, message);
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(Exception e, HttpServletRequest request, HttpStatus status, String message) {

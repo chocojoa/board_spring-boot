@@ -23,8 +23,8 @@ public class RedisDAO {
         return values.get(key);
     }
 
-    public Boolean deleteValues(String key) {
-        return redisTemplate.delete(key);
+    public void deleteValues(String key) {
+        redisTemplate.delete(key);
     }
 
 }
