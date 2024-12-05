@@ -5,7 +5,11 @@
 
 # 프로젝트 구성
 
-- aws jdk 21
+- aws open jdk 21
 - spring boot
-- spring security + JWT + Redis
+- spring security + JWT
 - mybatis
+
+# 필요 프로그램
+- MySQL 8
+- Redis
