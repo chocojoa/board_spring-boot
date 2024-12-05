@@ -17,7 +17,9 @@ public class UserDTO {
 
     private String email;
 
-    private String password;
+    private String password = "";
+
+    private String verifyPassword = "";
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String roleId;
