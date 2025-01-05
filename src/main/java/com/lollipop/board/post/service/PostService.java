@@ -44,7 +44,9 @@ public class PostService {
      * @return 게시글 정보
      */
     public PostDTO retrievePost(String categoryId, Integer postId, Integer userId) {
-        modifyPostViewCount(categoryId, postId, userId);
+        if(userId != null) {
+            modifyPostViewCount(categoryId, postId, userId);
+        }
         PostParam postParam = new PostParam();
         postParam.setCategoryId(categoryId);
         postParam.setPostId(postId);

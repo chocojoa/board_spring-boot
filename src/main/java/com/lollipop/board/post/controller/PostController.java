@@ -46,7 +46,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostDTO>> retrievePost(
             @PathVariable(value = "categoryId") String categoryId,
             @PathVariable(value = "postId") Integer postId,
-            @RequestParam(value = "userId") Integer userId) {
+            @RequestParam(value = "userId", required = false) Integer userId) {
         PostDTO post = postService.retrievePost(categoryId, postId, userId);
         return ResponseEntity.ok().body(ApiResponse.success(post));
     }
