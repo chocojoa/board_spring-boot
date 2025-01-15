@@ -84,14 +84,26 @@
     <!-- 메뉴 수정 -->
     <update id="updateMenu" parameterType="menuDTO">
         UPDATE MENU
-           SET MENU_NAME        = #{menuName}
-             , MENU_URL         = #{menuUrl}
-             , PARENT_MENU_ID   = #{parentMenuId}
-             , SORT_ORDER       = #{sortOrder}
-             , USAGE_STATUS     = #{usageStatus}
-             , ICON             = #{icon}
-             , MODIFIED_BY      = #{userId}
-             , MODIFIED_AT      = NOW()
+        <set>
+            <if test="menuName != '' and menuName != null">
+              , MENU_NAME        = #{menuName}
+            </if>
+            <if test="menuUrl != '' and menuUrl != null">
+              , MENU_URL         = #{menuUrl}
+            </if>
+              , PARENT_MENU_ID   = #{parentMenuId}
+            <if test="sortOrder != '' and sortOrder != null">
+              , SORT_ORDER       = #{sortOrder}
+            </if>
+            <if test="usageStatus != '' and usageStatus != null">
+              , USAGE_STATUS     = #{usageStatus}
+            </if>
+            <if test="usageStatus != '' and usageStatus != null">
+              , ICON             = #{icon}
+            </if>
+              , MODIFIED_BY      = #{userId}
+              , MODIFIED_AT      = NOW()
+        </set>
          WHERE ID = #{menuId}
     </update>
 
