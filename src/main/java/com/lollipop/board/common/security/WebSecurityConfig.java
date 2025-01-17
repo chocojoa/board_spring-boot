@@ -37,7 +37,8 @@ public class WebSecurityConfig {
         http.formLogin(AbstractHttpConfigurer::disable);
 
         HttpSecurity httpSecurity = http.authorizeHttpRequests(requests -> requests
-                .requestMatchers("/", "/static/**", "/api/auth/**", "/error").permitAll()
+                .requestMatchers("/", "/api/auth/**", "/error").permitAll()
+                .requestMatchers("/index.html", "/images/**", "/assets/**").permitAll()
                 .anyRequest().authenticated());
 
         HttpSecurity exceptionHandling = httpSecurity.exceptionHandling(exceptionHandlingConfigurer -> exceptionHandlingConfigurer
