@@ -18,7 +18,11 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.error(authException.getMessage(), authException);
-        String message = "인증되지 않았거나 유효한 자격 증명이 부족하여 요청이 거부되었습니다.";
-        setErrorResponse(request, response, HttpServletResponse.SC_UNAUTHORIZED, message, null);
+        if (request.getHeader("Content-Type").contains("application/json")) {
+            String message = "인증되지 않았거나 유효한 자격 증명이 부족하여 요청이 거부되었습니다.";
+            setErrorResponse(request, response, HttpServletResponse.SC_UNAUTHORIZED, message, null);
+        } else {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }
     }
 }
