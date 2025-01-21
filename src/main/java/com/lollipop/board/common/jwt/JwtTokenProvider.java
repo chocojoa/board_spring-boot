@@ -1,10 +1,8 @@
 package com.lollipop.board.common.jwt;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -72,21 +70,12 @@ public class JwtTokenProvider {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
-        } catch (SignatureException e) {
-            log.error("Invalid JWT signature: {}", e.getMessage());
-            throw new BadCredentialsException("토큰 서명이 잘못 되었습니다.");
-        } catch (MalformedJwtException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
-            throw new BadCredentialsException("유효하지 않은 토큰입니다.");
         } catch (ExpiredJwtException e) {
-            log.error("JWT token is expired: {}", e.getMessage());
-            throw new BadCredentialsException("토큰이 만료 되었습니다.");
-        } catch (UnsupportedJwtException e) {
-            log.error("JWT token is unsupported: {}", e.getMessage());
-            throw new BadCredentialsException("토큰을 지원하지 않습니다.");
-        } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty: {}", e.getMessage());
-            throw new BadCredentialsException("토큰 클레임 문자열이 비어 있습니다.");
+            log.error("Invalid JWT signature: {}", e.getMessage());
+            throw e;
+        } catch (JwtException e) {
+            log.error("Invalid JWT token: {}", e.getMessage());
+            throw e;
         }
     }
 

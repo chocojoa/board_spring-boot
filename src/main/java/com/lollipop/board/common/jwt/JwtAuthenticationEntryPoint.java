@@ -1,5 +1,6 @@
 package com.lollipop.board.common.jwt;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -16,13 +17,14 @@ import static com.lollipop.board.common.jwt.JwtUtils.setErrorResponse;
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         log.error(authException.getMessage(), authException);
-        if (request.getHeader("Content-Type").contains("application/json")) {
+        // API 요청일 경우에만 JSON 응답
+        if (request.getRequestURI().startsWith("/rest/")) {
             String message = "인증되지 않았거나 유효한 자격 증명이 부족하여 요청이 거부되었습니다.";
             setErrorResponse(request, response, HttpServletResponse.SC_UNAUTHORIZED, message, null);
         } else {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            request.getRequestDispatcher("/index.html").forward(request, response);
         }
     }
 }
