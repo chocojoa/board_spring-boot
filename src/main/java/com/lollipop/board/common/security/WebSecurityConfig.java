@@ -39,6 +39,7 @@ public class WebSecurityConfig {
         HttpSecurity httpSecurity = http.authorizeHttpRequests(requests -> requests
                 .requestMatchers("/", "/api/auth/**", "/error").permitAll()
                 .requestMatchers("/index.html", "/images/**", "/assets/**").permitAll()
+                .requestMatchers("/*.js", "/*.json", "/*.ico", "/*.png", "/*.svg", "/*.css").permitAll()
                 .anyRequest().authenticated());
 
         HttpSecurity exceptionHandling = httpSecurity.exceptionHandling(exceptionHandlingConfigurer -> exceptionHandlingConfigurer

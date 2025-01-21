@@ -1,12 +1,13 @@
 package com.lollipop.board.common.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -30,16 +31,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
             filterChain.doFilter(request, response);
-        } catch (BadCredentialsException e) {
-            String errorCode = null;
-            switch (e.getMessage()) {
-                case "토큰 서명이 잘못 되었습니다." -> errorCode = "INVALID_JWT_SIGNATURE";
-                case "유효하지 않은 토큰입니다." -> errorCode = "INVALID_JWT_TOKEN";
-                case "토큰이 만료 되었습니다." -> errorCode = "JWT_TOKEN_IS_EXPIRED";
-                case "토큰을 지원하지 않습니다." -> errorCode = "JWT_TOKEN_IS_UNSUPPORTED";
-                case "토큰 클레임 문자열이 비어 있습니다." -> errorCode = "JWT_CLAIMS_STRING_IS_EMPTY";
-            }
-            setErrorResponse(request, response, HttpServletResponse.SC_UNAUTHORIZED, e.getMessage(), errorCode);
+        } catch (ExpiredJwtException e) {
+            setErrorResponse(request, response, HttpServletResponse.SC_UNAUTHORIZED, e.getMessage(), "JWT_TOKEN_IS_EXPIRED");
+        } catch (JwtException e) {
+            setErrorResponse(request, response, HttpServletResponse.SC_UNAUTHORIZED, e.getMessage(), "INVALID_JWT_TOKEN");
         }
     }
 
