@@ -2,7 +2,7 @@ package com.lollipop.board.admin.menu.controller;
 
 import com.lollipop.board.admin.menu.model.MenuDTO;
 import com.lollipop.board.admin.menu.service.MenuService;
-import com.lollipop.board.common.model.ApiResponse;
+import com.lollipop.board.setup.model.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -72,18 +72,6 @@ public class MenuController {
     public ResponseEntity<ApiResponse<Void>> deleteMenu(@PathVariable Integer menuId) {
         menuService.removeMenu(menuId);
         return ResponseEntity.ok(ApiResponse.success(null));
-    }
-
-    /**
-     * 네비게이션 메뉴 조회
-     *
-     * @param menuName 메뉴 조회
-     * @return 메뉴 목록
-     */
-    @GetMapping("/breadcrumbs")
-    public ResponseEntity<ApiResponse<List<MenuDTO>>> retrieveBreadcrumbs(String menuName) {
-        List<MenuDTO> breadcrumbs = menuService.selectBreadcrumbs(menuName);
-        return ResponseEntity.ok(ApiResponse.success(breadcrumbs));
     }
 
 }

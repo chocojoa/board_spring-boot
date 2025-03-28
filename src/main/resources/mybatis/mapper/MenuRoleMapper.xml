@@ -4,75 +4,75 @@
 <mapper namespace="com.lollipop.board.admin.role.mapper.MenuRoleMapper">
 
     <select id="selectMenuRoleList" parameterType="java.lang.Integer" resultType="menuRoleDTO">
-        WITH RECURSIVE CTE AS (
-            SELECT M.ID                 AS MENU_ID
-                 , M.MENU_NAME          AS MENU_NAME
-                 , M.PARENT_MENU_ID     AS PARENT_MENU_ID
-                 , 1                    AS `DEPTH`
-                 , M.SORT_ORDER         AS SORT_ORDER
-                 , M.MENU_URL           AS MENU_URL
-                 , M.ID                 AS GROUP_ID
-              FROM MENU M
-             WHERE PARENT_MENU_ID = 0
-               AND USAGE_STATUS = true
+        WITH RECURSIVE cte AS (
+            SELECT m.id                 AS menu_id
+                 , m.menu_name          AS menu_name
+                 , m.parent_menu_id     AS parent_menu_id
+                 , 1                    AS `depth`
+                 , m.sort_order         AS sort_order
+                 , m.menu_url           AS menu_url
+                 , m.id                 AS group_id
+              FROM menu m
+             WHERE parent_menu_id = 0
+               AND usage_status = true
              UNION ALL
-            SELECT M2.ID                AS MENU_ID
-                 , M2.MENU_NAME         AS MENU_NAME
-                 , M2.PARENT_MENU_ID    AS PARENT_MENU_ID
-                 , CTE.`DEPTH` + 1      AS `DEPTH`
-                 , M2.SORT_ORDER        AS SORT_ORDER
-                 , M2.MENU_URL          AS MENU_URL
-                 , CTE.GROUP_ID         AS GROUP_ID
-              FROM MENU M2
-             INNER JOIN CTE ON M2.PARENT_MENU_ID = CTE.MENU_ID
-             WHERE M2.USAGE_STATUS = true
+            SELECT m2.id                AS menu_id
+                 , m2.menu_name         AS menu_name
+                 , m2.parent_menu_id    AS parent_menu_id
+                 , cte.`depth` + 1      AS `depth`
+                 , m2.sort_order        AS sort_order
+                 , m2.menu_url          AS menu_url
+                 , cte.group_id         AS group_id
+              FROM `menu` m2
+             INNER JOIN `cte` cte ON m2.parent_menu_id = cte.menu_id
+             WHERE m2.usage_status = true
         )
-        SELECT A.MENU_ID
-             , A.MENU_NAME
-             , A.PARENT_MENU_ID
-             , A.GROUP_ID
-             , A.DEPTH
-             , A.SORT_ORDER
-             , A.MENU_URL
-             , A.CHILD_COUNT
-             , IF(A.CHILD_COUNT > 0 AND A.CHILD_COUNT != A.CHILD_CHECKED_COUNT, true, false) AS HALF_CHECKED
-             , CASE WHEN A.CHILD_COUNT > 0 AND A.CHILD_COUNT = A.CHILD_CHECKED_COUNT THEN true
-                    WHEN A.CHILD_COUNT = 0 AND A.CHECKED IS true THEN true
-                    ELSE false END AS CHECKED
+        SELECT a.menu_id
+             , a.menu_name
+             , a.parent_menu_id
+             , a.group_id
+             , a.depth
+             , a.sort_order
+             , a.menu_url
+             , a.child_count
+             , IF(a.child_count > 0 AND a.child_count != a.child_checked_count, true, false) as half_checked
+             , CASE WHEN a.child_count > 0 AND a.child_count = a.child_checked_count THEN true
+                    WHEN a.child_count = 0 AND a.checked IS true THEN true
+                    ELSE false END AS checked
           FROM (
-                SELECT C.MENU_ID
-                     , C.MENU_NAME
-                     , C.PARENT_MENU_ID
-                     , C.GROUP_ID
-                     , C.`DEPTH`
-                     , C.SORT_ORDER
-                     , C.MENU_URL
-                     , (SELECT COUNT(*)
-                          FROM MENU
-                         WHERE PARENT_MENU_ID = C.MENU_ID) AS CHILD_COUNT
-                     , (SELECT COUNT(MR.MENU_ID)
-                          FROM MENU M
-                          LEFT JOIN MENU_ROLE MR ON M.ID = MR.MENU_ID AND MR.ROLE_ID = #{roleId}
-                         WHERE M.PARENT_MENU_ID = C.MENU_ID) AS CHILD_CHECKED_COUNT
-                     , IF(RM.MENU_ID IS NOT NULL, true, false) AS CHECKED
-                  FROM CTE C
-                  LEFT JOIN MENU_ROLE RM ON C.MENU_ID = RM.MENU_ID AND RM.ROLE_ID = #{roleId}
+                SELECT c.menu_id
+                     , c.menu_name
+                     , c.parent_menu_id
+                     , c.group_id
+                     , c.`depth`
+                     , c.sort_order
+                     , c.menu_url
+                     , (SELECT count(*)
+                          FROM `menu`
+                         WHERE parent_menu_id = c.menu_id) as child_count
+                     , (SELECT count(mr.menu_id)
+                          from `menu` m
+                          LEFT JOIN `menu_role` mr ON m.id = mr.menu_id AND mr.role_id = #{roleId}
+                         WHERE m.parent_menu_id = C.menu_id) AS child_checked_count
+                     , IF(rm.menu_id IS NOT NULL, true, false) AS checked
+                  FROM `cte` c
+                  LEFT JOIN `menu_role` rm ON c.menu_id = rm.menu_id AND rm.role_id = #{roleId}
                ) A
-         ORDER BY A.GROUP_ID, A.`DEPTH`, A.SORT_ORDER, A.MENU_NAME
+         ORDER BY a.parent_menu_id, a.`depth`, a.sort_order, a.menu_name
     </select>
 
     <!-- 권한별 메뉴 저장 -->
     <insert id="insertMenuRole" parameterType="menuRoleDTO">
-        INSERT INTO MENU_ROLE(ROLE_ID, MENU_ID, CREATED_BY)
-        SELECT #{roleId}, M.ID, #{createdBy}
-          FROM MENU M
-         WHERE M.ID IN <foreach collection="addMenuList" item="menuId" open="(" separator="," close=")">#{menuId}</foreach>
+        INSERT INTO `menu_role`(role_id, menu_id, created_by)
+        SELECT #{roleId}, m.id, #{createdBy}
+          FROM `menu` m
+         WHERE m.id IN <foreach collection="addMenuList" item="menuId" open="(" separator="," close=")">#{menuId}</foreach>
     </insert>
 
     <!-- 권한별 메뉴 삭제 -->
     <delete id="deleteMenuRole" parameterType="menuRoleDTO">
-        DELETE FROM MENU_ROLE
-         WHERE ROLE_ID = #{roleId}
+        DELETE FROM `menu_role`
+         WHERE role_id = #{roleId}
     </delete>
 
 </mapper>

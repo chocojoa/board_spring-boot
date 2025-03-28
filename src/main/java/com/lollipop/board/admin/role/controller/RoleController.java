@@ -1,6 +1,6 @@
 package com.lollipop.board.admin.role.controller;
 
-import com.lollipop.board.common.model.ApiResponse;
+import com.lollipop.board.setup.model.ApiResponse;
 import com.lollipop.board.admin.role.model.RoleDTO;
 import com.lollipop.board.admin.role.model.RoleParam;
 import com.lollipop.board.admin.role.service.RoleService;

@@ -1,6 +1,6 @@
-package com.lollipop.board.common.aspect;
+package com.lollipop.board.setup.aspect;
 
-import com.lollipop.board.common.model.ApiResponse;
+import com.lollipop.board.setup.model.ApiResponse;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

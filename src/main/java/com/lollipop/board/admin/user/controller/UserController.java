@@ -1,6 +1,6 @@
 package com.lollipop.board.admin.user.controller;
 
-import com.lollipop.board.common.model.ApiResponse;
+import com.lollipop.board.setup.model.ApiResponse;
 import com.lollipop.board.common.model.PaginationDTO;
 import com.lollipop.board.admin.user.model.UserDTO;
 import com.lollipop.board.admin.user.model.UserParam;

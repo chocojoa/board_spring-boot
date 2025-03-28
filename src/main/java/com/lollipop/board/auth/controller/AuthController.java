@@ -1,6 +1,6 @@
 package com.lollipop.board.auth.controller;
 
-import com.lollipop.board.common.model.ApiResponse;
+import com.lollipop.board.setup.model.ApiResponse;
 import com.lollipop.board.auth.model.AuthDTO;
 import com.lollipop.board.auth.model.AuthParam;
 import com.lollipop.board.auth.service.AuthService;

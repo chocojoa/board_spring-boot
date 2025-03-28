@@ -1,4 +1,4 @@
-package com.lollipop.board.common.jwt;
+package com.lollipop.board.setup.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;

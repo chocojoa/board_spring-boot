@@ -1,4 +1,4 @@
-package com.lollipop.board.common.redis.dao;
+package com.lollipop.board.setup.redis.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;

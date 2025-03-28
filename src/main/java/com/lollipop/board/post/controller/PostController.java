@@ -4,7 +4,7 @@ import com.lollipop.board.post.model.PostDTO;
 import com.lollipop.board.post.model.PostParam;
 import com.lollipop.board.post.model.CommentDTO;
 import com.lollipop.board.post.service.PostService;
-import com.lollipop.board.common.model.ApiResponse;
+import com.lollipop.board.setup.model.ApiResponse;
 import com.lollipop.board.common.model.PaginationDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

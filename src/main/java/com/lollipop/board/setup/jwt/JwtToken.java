@@ -1,4 +1,4 @@
-package com.lollipop.board.common.jwt;
+package com.lollipop.board.setup.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

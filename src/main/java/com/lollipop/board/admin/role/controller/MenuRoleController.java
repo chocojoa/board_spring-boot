@@ -2,7 +2,7 @@ package com.lollipop.board.admin.role.controller;
 
 import com.lollipop.board.admin.role.model.MenuRoleDTO;
 import com.lollipop.board.admin.role.service.MenuRoleService;
-import com.lollipop.board.common.model.ApiResponse;
+import com.lollipop.board.setup.model.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

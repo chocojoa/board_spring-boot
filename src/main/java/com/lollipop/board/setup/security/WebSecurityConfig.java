@@ -1,9 +1,9 @@
-package com.lollipop.board.common.security;
+package com.lollipop.board.setup.security;
 
-import com.lollipop.board.common.jwt.JwtAccessDeniedHandler;
-import com.lollipop.board.common.jwt.JwtAuthenticationEntryPoint;
-import com.lollipop.board.common.jwt.JwtAuthenticationFilter;
-import com.lollipop.board.common.jwt.JwtTokenProvider;
+import com.lollipop.board.setup.jwt.JwtAccessDeniedHandler;
+import com.lollipop.board.setup.jwt.JwtAuthenticationEntryPoint;
+import com.lollipop.board.setup.jwt.JwtAuthenticationFilter;
+import com.lollipop.board.setup.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

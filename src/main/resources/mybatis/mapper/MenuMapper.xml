@@ -4,77 +4,80 @@
 <mapper namespace="com.lollipop.board.admin.menu.mapper.MenuMapper">
 
     <select id="selectMenus" resultType="menuDTO">
-        WITH RECURSIVE CTE AS (
-            SELECT M.ID                 AS MENU_ID
-                 , M.MENU_NAME          AS MENU_NAME
-                 , M.PARENT_MENU_ID     AS PARENT_MENU_ID
-                 , 1                    AS `DEPTH`
-                 , M.SORT_ORDER         AS SORT_ORDER
-                 , M.MENU_URL           AS MENU_URL
-                 , M.ICON               AS ICON
-                 , M.ID                 AS GROUP_ID
-              FROM MENU M
-             WHERE PARENT_MENU_ID = 0
-               AND USAGE_STATUS = true
+        WITH RECURSIVE cte AS (
+            SELECT m.id                 AS menu_id
+                 , m.menu_name          AS menu_name
+                 , m.parent_menu_id     AS parent_menu_id
+                 , 1                    AS `depth`
+                 , m.sort_order         AS sort_order
+                 , m.menu_url           AS menu_url
+                 , m.icon               AS icon
+                 , m.id                 AS group_id
+              FROM `menu` M
+             WHERE parent_menu_id = 0
+               AND usage_status = true
              UNION ALL
-            SELECT M2.ID                AS MENU_ID
-                 , M2.MENU_NAME         AS MENU_NAME
-                 , M2.PARENT_MENU_ID    AS PARENT_MENU_ID
-                 , CTE.`DEPTH` + 1      AS `DEPTH`
-                 , M2.SORT_ORDER        AS SORT_ORDER
-                 , M2.MENU_URL          AS MENU_URL
-                 , M2.ICON              AS ICON
-                 , CTE.GROUP_ID         AS GROUP_ID
-              FROM MENU M2
-             INNER JOIN CTE ON M2.PARENT_MENU_ID = CTE.MENU_ID
+            SELECT m2.id                AS menu_id
+                 , m2.menu_name         AS menu_name
+                 , m2.parent_menu_id    AS parent_menu_id
+                 , cte.`depth` + 1      AS `depth`
+                 , m2.sort_order        AS sort_order
+                 , m2.menu_url          AS menu_url
+                 , m2.icon              AS icon
+                 , cte.group_id         AS group_id
+              FROM `menu` m2
+             INNER JOIN `cte` cte ON m2.parent_menu_id = cte.menu_id
              WHERE M2.USAGE_STATUS = true
         )
-        SELECT C.MENU_ID            AS menuId
-             , C.MENU_NAME          AS menuName
-             , C.PARENT_MENU_ID     AS parentMenuId
-             , C.GROUP_ID           AS groupId
-             , C.`DEPTH`            AS depth
-             , C.SORT_ORDER         AS sortOrder
-             , C.MENU_URL           AS menuUrl
-             , C.ICON               AS icon
+        SELECT c.menu_id            AS menuid
+             , c.menu_name          AS menuname
+             , c.parent_menu_id     AS parentmenuid
+             , c.group_id           AS groupid
+             , c.`depth`            AS depth
+             , c.sort_order         AS sortorder
+             , c.menu_url           AS menuurl
+             , c.icon               AS icon
              , (SELECT COUNT(*)
-                  FROM MENU
-                 WHERE PARENT_MENU_ID = C.MENU_ID) AS childCount
-          FROM CTE C
-         ORDER BY C.GROUP_ID, C.`DEPTH`, C.SORT_ORDER, C.MENU_NAME
+                  FROM `menu`
+                 WHERE parent_menu_id = c.menu_id) AS childCount
+          FROM cte c
+         ORDER BY c.parent_menu_id, c.`depth`, c.sort_order, c.menu_name
     </select>
 
     <!-- 메뉴 상세조회 -->
     <select id="selectMenuById" parameterType="java.lang.Integer" resultType="menuDTO">
-        SELECT ID                       AS menuId
-             , MENU_NAME                AS menuName
-             , PARENT_MENU_ID           AS parentMenuId
-             , IFNULL(MENU_URL, '')     AS menuUrl
-             , SORT_ORDER               AS sortOrder
-             , USAGE_STATUS             AS usageStatus
-             , IFNULL(ICON, '')         AS icon
-          FROM MENU
-         WHERE ID = #{menuId}
+        SELECT id                       AS menuid
+             , menu_name                AS menuname
+             , parent_menu_id           AS parentmenuid
+             , IFNULL(menu_url, '')     AS menuurl
+             , sort_order               AS sortorder
+             , usage_status             AS usagestatus
+             , is_displayed             AS isdisplayed
+             , IFNULL(icon, '')         AS icon
+          FROM `menu`
+         WHERE id = #{menuId}
     </select>
 
     <!-- 메뉴 저장 -->
     <insert id="insertMenu" parameterType="menuDTO">
-        INSERT INTO MENU
+        INSERT INTO `menu`
             (
-              MENU_NAME
-            , MENU_URL
-            , PARENT_MENU_ID
-            , SORT_ORDER
-            , USAGE_STATUS
-            , ICON
-            , CREATED_BY
-            , CREATED_AT
+              menu_name
+            , menu_url
+            , parent_menu_id
+            , sort_order
+            , usage_status
+            , is_displayed
+            , icon
+            , created_by
+            , created_at
             ) VALUES (
               #{menuName}
             , #{menuUrl}
             , #{parentMenuId}
             , #{sortOrder}
             , #{usageStatus}
+            , #{isDisplayed}
             , #{icon}
             , #{userId}
             , NOW()
@@ -83,60 +86,63 @@
 
     <!-- 메뉴 수정 -->
     <update id="updateMenu" parameterType="menuDTO">
-        UPDATE MENU
+        UPDATE `menu`
         <set>
             <if test="menuName != '' and menuName != null">
-              , MENU_NAME        = #{menuName}
+              , menu_name        = #{menuName}
             </if>
             <if test="menuUrl != '' and menuUrl != null">
-              , MENU_URL         = #{menuUrl}
+              , menu_url         = #{menuUrl}
             </if>
-              , PARENT_MENU_ID   = #{parentMenuId}
+              , parent_menu_id   = #{parentMenuId}
             <if test="sortOrder != '' and sortOrder != null">
-              , SORT_ORDER       = #{sortOrder}
+              , sort_order       = #{sortOrder}
             </if>
             <if test="usageStatus != '' and usageStatus != null">
-              , USAGE_STATUS     = #{usageStatus}
+              , usage_status     = #{usageStatus}
+            </if>
+            <if test="isDisplayed != '' and isDisplayed != null">
+              , is_displayed     = #{isDisplayed}
             </if>
             <if test="usageStatus != '' and usageStatus != null">
-              , ICON             = #{icon}
+              , icon             = #{icon}
             </if>
-              , MODIFIED_BY      = #{userId}
-              , MODIFIED_AT      = NOW()
+              , modified_by      = #{userId}
+              , modified_at      = NOW()
         </set>
-         WHERE ID = #{menuId}
+         WHERE id = #{menuId}
     </update>
 
     <!-- 메뉴 삭제 -->
     <delete id="deleteMenu" parameterType="java.lang.Integer">
-        DELETE FROM MENU
-         WHERE ID = #{menuId}
+        DELETE FROM `menu`
+         WHERE id = #{menuId}
     </delete>
 
     <!-- 네비게이션 메뉴 조회 -->
     <select id="selectBreadcrumbs" parameterType="java.lang.String" resultType="menuDTO">
-        WITH RECURSIVE CTE AS (
-            SELECT M.ID                 AS MENU_ID
-                 , M.MENU_NAME          AS MENU_NAME
-                 , M.PARENT_MENU_ID     AS PARENT_MENU_ID
-                 , M.MENU_URL           AS MENU_URL
-              FROM MENU M
-             WHERE M.MENU_NAME = #{menuName}
-               AND USAGE_STATUS = true
+        WITH RECURSIVE cte AS (
+            SELECT m.id                 AS menu_id
+                 , m.menu_name          AS menu_name
+                 , m.parent_menu_id     AS parent_menu_id
+                 , m.menu_url           AS menu_url
+              FROM menu m
+             WHERE m.menu_name = #{menuname}
+               AND usage_status = true
              UNION ALL
-            SELECT M2.ID                AS MENU_ID
-                 , M2.MENU_NAME         AS MENU_NAME
-                 , M2.PARENT_MENU_ID    AS PARENT_MENU_ID
-                 , M2.MENU_URL          AS MENU_URL
-              FROM MENU M2
-             INNER JOIN CTE ON M2.ID = CTE.PARENT_MENU_ID
-             WHERE M2.USAGE_STATUS = true
+            SELECT m2.id                AS menu_id
+                 , m2.menu_name         AS menu_name
+                 , m2.parent_menu_id    AS parent_menu_id
+                 , m2.menu_url          AS menu_url
+              FROM `menu` m2
+             INNER JOIN `cte` cte ON m2.id = cte.parent_menu_id
+             WHERE m2.usage_status = true
         )
-        SELECT C.MENU_ID            AS menuId
-             , C.MENU_NAME          AS menuName
-             , C.MENU_URL           AS menuUrl
-          FROM CTE C
-         ORDER BY C.PARENT_MENU_ID, C.MENU_ID
+        SELECT c.menu_id            AS menuid
+             , c.menu_name          AS menuname
+             , c.menu_url           AS menuurl
+          FROM cte c
+         ORDER BY c.parent_menu_id, c.menu_id
     </select>
 
 </mapper>

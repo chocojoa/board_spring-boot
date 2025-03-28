@@ -4,30 +4,32 @@
 <mapper namespace="com.lollipop.board.common.mapper.UserMenuMapper">
 
     <select id="selectUserMenuList" parameterType="java.lang.Integer" resultType="userMenuDTO">
-        SELECT C.MENU_ID            AS menuId
-             , C.MENU_NAME          AS menuName
-             , C.PARENT_MENU_ID     AS parentMenuId
-             , C.MENU_URL           AS menuUrl
-             , C.SORT_ORDER         AS sortOrder
-             , C.ICON               AS icon
+        SELECT c.menu_id            AS menuId
+             , c.menu_name          AS menuName
+             , c.parent_menu_id     AS parentMenuId
+             , c.menu_url           AS menuUrl
+             , c.sort_order         AS sortOrder
+             , c.icon               AS icon
+             , c.is_displayed       AS isDisplayed
              , (SELECT COUNT(*)
-                FROM MENU
-                WHERE PARENT_MENU_ID = C.MENU_ID) AS childCount
+                FROM `menu`
+                WHERE parent_menu_id = c.menu_id) AS childCount
         FROM (
-              SELECT M.ID                   AS MENU_ID
-                   , MAX(M.MENU_NAME)       AS MENU_NAME
-                   , MAX(M.PARENT_MENU_ID)  AS PARENT_MENU_ID
-                   , MAX(M.MENU_URL)        AS MENU_URL
-                   , MAX(M.SORT_ORDER)      AS SORT_ORDER
-                   , MAX(M.ICON)            AS ICON
-                FROM MENU M
-               INNER JOIN MENU_ROLE MR ON M.ID = MR.MENU_ID
-               INNER JOIN USER_ROLE UR ON MR.ROLE_ID = UR.ROLE_ID
-               WHERE M.USAGE_STATUS = true
-                 AND UR.USER_ID = #{userId}
-               GROUP BY M.ID
-              ) C
-       ORDER BY C.PARENT_MENU_ID, C.SORT_ORDER, C.MENU_ID
+              SELECT m.id                   AS menu_id
+                   , MAX(m.menu_name)       AS menu_name
+                   , MAX(m.parent_menu_id)  AS parent_menu_id
+                   , MAX(m.menu_url)        AS menu_url
+                   , MAX(m.sort_order)      AS sort_order
+                   , MAX(m.is_displayed)    AS is_displayed
+                   , MAX(m.icon)            AS icon
+                FROM `menu` m
+               INNER JOIN `menu_role` mr ON m.id = mr.menu_id
+               INNER JOIN `user_role` ur ON mr.role_id = ur.role_id
+               WHERE m.usage_status = true
+                 AND ur.user_id = #{userId}
+               GROUP BY m.id
+              ) c
+       ORDER BY c.parent_menu_id, c.sort_order, c.menu_id
     </select>
 
 </mapper>
