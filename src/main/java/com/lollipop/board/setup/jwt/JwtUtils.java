@@ -1,7 +1,7 @@
-package com.lollipop.board.common.jwt;
+package com.lollipop.board.setup.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lollipop.board.common.advice.ErrorResponse;
+import com.lollipop.board.setup.advice.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;

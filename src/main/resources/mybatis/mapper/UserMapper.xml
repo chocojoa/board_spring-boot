@@ -76,21 +76,21 @@
 
     <!-- 이메일 주소로 사용자 정보 조회 -->
     <select id="selectUserByEmail" parameterType="java.lang.String" resultType="loginUserDTO">
-        SELECT ID           AS userId
-             , USER_NAME    AS userName
-             , EMAIL        AS email
-             , PASSWORD     AS password
-          FROM USER
-         WHERE EMAIL = #{email}
+        SELECT id           AS userId
+             , user_name    AS userName
+             , email        AS email
+             , password     AS password
+          FROM `user`
+         WHERE email = #{email}
     </select>
 
     <!-- 사용자 정보 저장 -->
     <insert id="insertUser" parameterType="userDTO" useGeneratedKeys="true" keyProperty="userId">
-        INSERT INTO USER (
-              USER_NAME
-            , PASSWORD
-            , EMAIL
-            , CREATED_BY
+        INSERT INTO `user` (
+              user_name
+            , password
+            , email
+            , created_by
         ) VALUES (
               #{userName}
             , #{password}
@@ -101,21 +101,21 @@
 
     <!-- 사용자 정보 수정 -->
     <update id="updateUser" parameterType="userDTO">
-        UPDATE USER
+        UPDATE `user`
         <set>
             <if test="userName != null and userName != ''">
-                USER_NAME = #{userName},
+                user_name = #{userName},
             </if>
             <if test="email != null and email != ''">
-                EMAIL = #{email},
+                email = #{email},
             </if>
-            <if test="password != null and password != ''">
-                PASSWORD = #{password},
+            <if test="isPasswordChange == true and password != null and password != ''">
+                password = #{password},
             </if>
-            MODIFIED_BY = #{modifiedBy},
-            MODIFIED_AT = NOW()
+            modified_by = #{modifiedBy},
+            modified_at = NOW()
         </set>
-        WHERE ID = #{userId}
+        WHERE id = #{userId}
     </update>
 
 </mapper>

@@ -31,4 +31,6 @@ public class UserMenuDTO {
 
     private String icon;
 
+    private Boolean isDisplayed;
+
 }

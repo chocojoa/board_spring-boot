@@ -1,4 +1,4 @@
-package com.lollipop.board.common.advice;
+package com.lollipop.board.setup.advice;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

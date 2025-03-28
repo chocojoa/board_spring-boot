@@ -1,6 +1,6 @@
 package com.lollipop.board.post.service;
 
-import com.lollipop.board.common.redis.dao.RedisDAO;
+import com.lollipop.board.setup.redis.dao.RedisDAO;
 import com.lollipop.board.post.mapper.PostMapper;
 import com.lollipop.board.post.model.PostDTO;
 import com.lollipop.board.post.model.PostParam;

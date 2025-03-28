@@ -1,4 +1,4 @@
-package com.lollipop.board.common.model;
+package com.lollipop.board.setup.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

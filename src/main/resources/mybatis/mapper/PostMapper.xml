@@ -5,21 +5,21 @@
 
     <!-- 게시글 개수 조회 -->
     <select id="selectPostCount" parameterType="postParam" resultType="java.lang.Integer">
-        SELECT COUNT(P.ID) AS totalCount
-          FROM POST P
-         INNER JOIN USER U ON P.CREATED_BY = U.ID
-         WHERE P.CATEGORY_ID = #{categoryId}
+        SELECT COUNT(p.id) AS totalCount
+          FROM `post` p
+         INNER JOIN `USER` u ON p.created_by = u.id
+         WHERE p.category_id = #{categoryId}
         <if test="title != null and title != ''">
-           AND P.TITLE LIKE CONCAT('%', #{title}, '%')
+           AND p.title LIKE CONCAT('%', #{title}, '%')
         </if>
         <if test="author != null and author != ''">
-           AND U.USER_NAME LIKE CONCAT('%', #{author}, '%')
+           AND u.user_name LIKE CONCAT('%', #{author}, '%')
         </if>
         <if test="startCreatedDate != null and startCreatedDate != ''">
-           AND P.CREATED_AT > #{startCreatedDate}
+           AND p.created_at > #{startCreatedDate}
         </if>
         <if test="endCreatedDate != null and endCreatedDate != ''">
-           AND P.CREATED_AT <![CDATA[<]]> DATE_ADD(#{endCreatedDate}, INTERVAL 1 DAY)
+           AND p.created_at <![CDATA[<]]> DATE_ADD(#{endCreatedDate}, INTERVAL 1 DAY)
         </if>
     </select>
 
@@ -27,35 +27,35 @@
     <select id="selectPostList" parameterType="postParam" resultType="postDTO">
         SELECT *
           FROM (
-                SELECT ROW_NUMBER() OVER(PARTITION BY P.CATEGORY_ID ORDER BY P.CREATED_AT, P.ID) AS rowNumber
-                     , P.CATEGORY_ID        AS categoryId
-                     , P.ID                 AS postId
-                     , P.TITLE              AS title
-                     , P.VIEW_COUNT         AS viewCount
-                     , PC.COMMENT_COUNT     AS commentCount
-                     , U.ID                 AS userId
-                     , U.USER_NAME          AS author
-                     , DATE_FORMAT(P.CREATED_AT, '%Y-%m-%d') AS createdDate
-                  FROM POST P
-                 INNER JOIN USER U ON P.CREATED_BY = U.ID
+                SELECT ROW_NUMBER() OVER(PARTITION BY p.category_id ORDER BY p.created_at, p.id) AS rowNumber
+                     , p.category_id        AS categoryId
+                     , p.id                 AS postId
+                     , p.title              AS title
+                     , p.view_count         AS viewCount
+                     , pc.comment_count     AS commentCount
+                     , u.id                 AS userId
+                     , u.user_name          AS author
+                     , DATE_FORMAT(p.created_at, '%Y-%m-%d') AS createdDate
+                  FROM `post` p
+                 INNER JOIN `user` u ON p.created_by = u.id
                   LEFT JOIN (
-                             SELECT POST_ID AS POST_ID
-                                  , COUNT(POST_ID) AS COMMENT_COUNT
-                               FROM POST_COMMENT
-                              GROUP BY POST_ID
-                             ) PC ON P.ID = PC.POST_ID
-                 WHERE P.CATEGORY_ID = #{categoryId}
+                             SELECT post_id AS post_id
+                                  , COUNT(post_id) AS comment_count
+                               FROM `post_comment`
+                              GROUP BY post_id
+                             ) pc ON p.id = pc.post_id
+                 WHERE p.category_id = #{categoryId}
                 <if test="title != null and title != ''">
-                   AND P.TITLE LIKE CONCAT('%', #{title}, '%')
+                   AND p.title LIKE CONCAT('%', #{title}, '%')
                 </if>
                 <if test="author != null and author != ''">
-                   AND U.USER_NAME LIKE CONCAT('%' #{author}, '%')
+                   AND u.user_name LIKE CONCAT('%' #{author}, '%')
                 </if>
                 <if test="startCreatedDate != null and startCreatedDate != ''">
-                   AND P.CREATED_AT > #{startCreatedDate}
+                   AND p.created_at > #{startCreatedDate}
                 </if>
                 <if test="endCreatedDate != null and endCreatedDate != ''">
-                   AND P.CREATED_AT <![CDATA[<]]> DATE_ADD(#{endCreatedDate}, INTERVAL 1 DAY)
+                   AND p.created_at <![CDATA[<]]> DATE_ADD(#{endCreatedDate}, INTERVAL 1 DAY)
                 </if>
                 ) A
         <if test="sortColumn != null">
@@ -68,28 +68,28 @@
 
     <!-- 게시글 정보 조회 -->
     <select id="selectPost" parameterType="postParam" resultType="postDTO">
-        SELECT P.ID             AS postId
-             , P.CATEGORY_ID    AS categoryId
-             , P.TITLE          AS title
-             , P.CONTENT        AS content
-             , P.VIEW_COUNT     AS viewCount
-             , U.USER_NAME      AS author
-             , DATE_FORMAT(P.CREATED_AT, '%Y-%m-%d %H:%i')  AS createdDate
-          FROM POST P
-         INNER JOIN USER U ON P.CREATED_BY = U.ID
-         WHERE P.CATEGORY_ID = #{categoryId}
-           AND P.ID = #{postId}
+        SELECT p.id             AS postId
+             , p.category_id    AS categoryId
+             , p.title          AS title
+             , p.content        AS content
+             , p.view_count     AS viewCount
+             , u.user_name      AS author
+             , DATE_FORMAT(p.created_at, '%Y-%m-%d %H:%i')  AS createdDate
+          FROM `post` p
+         INNER JOIN `USER` u ON p.created_by = u.id
+         WHERE p.category_id = #{categoryId}
+           AND p.id = #{postId}
     </select>
 
     <!-- 게시글 정보 저장 -->
     <insert id="insertPost" parameterType="postDTO" useGeneratedKeys="true" keyProperty="postId">
-        INSERT INTO POST (
-                  CATEGORY_ID
-                , TITLE
-                , CONTENT
-                , VIEW_COUNT
-                , CREATED_BY
-                , CREATED_AT
+        INSERT INTO `post` (
+                  category_id
+                , title
+                , content
+                , view_count
+                , created_by
+                , created_at
             ) VALUES (
                   #{categoryId}
                 , #{title}
@@ -102,77 +102,77 @@
 
     <!-- 게시글 정보 수정 -->
     <update id="updatePost" parameterType="postDTO">
-        UPDATE POST
+        UPDATE `post`
         <set>
             <if test="title != null and title != ''">
-                TITLE = #{title},
+                title = #{title},
             </if>
             <if test="content != null and content != ''">
-                CONTENT = #{content},
+                content = #{content},
             </if>
-            MODIFIED_BY = #{userId},
-            MODIFIED_AT = NOW()
+            modified_by = #{userId},
+            modified_at = NOW()
         </set>
-        WHERE CATEGORY_ID = #{categoryId}
-          AND ID = #{postId}
+        WHERE category_id = #{categoryId}
+          AND id = #{postId}
     </update>
 
     <!-- 게시글 조회수 수정 -->
     <update id="updateViewCount" parameterType="postDTO">
-        UPDATE POST
-           SET VIEW_COUNT = VIEW_COUNT + 1
-         WHERE CATEGORY_ID = #{categoryId}
-           AND ID = #{postId}
+        UPDATE `post`
+           SET view_count = view_count + 1
+         WHERE category_id = #{categoryId}
+           AND id = #{postId}
     </update>
 
     <!-- 댓글 목록 조회 -->
     <select id="selectCommentList" parameterType="postParam" resultType="commentDTO">
-        WITH RECURSIVE CTE AS (
-            SELECT PC.ID AS COMMENT_ID
-                 , PC.CONTENT
-                 , PC.PARENT_COMMENT_ID
-                 , PC.POST_ID
-                 , PC.CREATED_BY
-                 , PC.CREATED_AT
-                 , 0 AS STEP
-                 , CAST(LPAD(PC.ID, 8, '0') AS CHAR(200)) AS SORT_INDEX
-              FROM POST_COMMENT PC
-             WHERE PC.PARENT_COMMENT_ID = 0
-               AND PC.POST_ID = #{postId}
+        WITH RECURSIVE cte AS (
+            SELECT pc.id AS comment_id
+                 , pc.content
+                 , pc.parent_comment_id
+                 , pc.post_id
+                 , pc.created_by
+                 , pc.created_at
+                 , 0 AS step
+                 , CAST(LPAD(pc.id, 8, '0') AS CHAR(200)) AS sort_index
+              FROM `post_comment` pc
+             WHERE pc.parent_comment_id = 0
+               AND pc.post_id = #{postId}
              UNION ALL
-            SELECT PC2.ID AS COMMENT_ID
-                 , PC2.CONTENT
-                 , PC2.PARENT_COMMENT_ID
-                 , PC2.POST_ID
-                 , PC2.CREATED_BY
-                 , PC2.CREATED_AT
-                 , CTE.STEP + 1 AS STEP
-                 , CONCAT(CTE.SORT_INDEX, ',', LPAD(PC2.ID, 8, '0')) AS SORT_INDEX
-              FROM POST_COMMENT PC2
-             INNER JOIN CTE ON PC2.PARENT_COMMENT_ID = CTE.COMMENT_ID
-             WHERE PC2.POST_ID = #{postId}
+            SELECT pc2.id AS comment_id
+                 , pc2.content
+                 , pc2.parent_comment_id
+                 , pc2.post_id
+                 , pc2.created_by
+                 , pc2.created_at
+                 , cte.step + 1 AS step
+                 , CONCAT(cte.sort_index, ',', LPAD(pc2.id, 8, '0')) AS sort_index
+              FROM `post_comment` pc2
+             INNER JOIN `cte` cte ON pc2.parent_comment_id = cte.comment_id
+             WHERE pc2.post_id = #{postId}
         )
-        SELECT C.COMMENT_ID         AS commentId
-             , C.CONTENT            AS content
-             , C.PARENT_COMMENT_ID  AS parentCommentId
-             , C.STEP               AS step
-             , C.POST_ID            AS postId
-             , U.USER_NAME          AS author
-             , U.EMAIL              AS email
-             , DATE_FORMAT(C.CREATED_AT, '%Y-%m-%d %H:%i')  AS createdDate
-          FROM CTE C
-          LEFT JOIN USER U ON C.CREATED_BY = U.ID
-         ORDER BY C.SORT_INDEX
+        SELECT c.comment_id         AS commentId
+             , c.content            AS content
+             , c.parent_comment_id  AS parentCommentId
+             , c.step               AS step
+             , c.post_id            AS postId
+             , u.user_name          AS author
+             , u.email              AS email
+             , DATE_FORMAT(c.created_at, '%Y-%m-%d %H:%i')  AS createdDate
+          FROM cte c
+          LEFT JOIN `user` u ON c.created_by = u.id
+         ORDER BY c.sort_index
     </select>
 
     <!-- 댓글 정보 저장 -->
     <insert id="insertComment" parameterType="commentDTO">
-        INSERT INTO POST_COMMENT (
-                  CONTENT
-                , PARENT_COMMENT_ID
-                , POST_ID
-                , CREATED_BY
-                , CREATED_AT
+        INSERT INTO `post_comment` (
+                  content
+                , parent_comment_id
+                , post_id
+                , created_by
+                , created_at
             ) VALUES (
                   #{content}
                 , #{parentCommentId}

@@ -1,5 +1,6 @@
-package com.lollipop.board.common.advice;
+package com.lollipop.board.setup.advice;
 
+import com.lollipop.board.setup.exception.MenuAccessDeniedException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -58,6 +59,11 @@ public class CustomControllerAdvice {
     protected ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException e, HttpServletRequest request) {
         String message = "Bad credentials provided. Please check your credentials.";
         return buildErrorResponse(e, request, HttpStatus.UNAUTHORIZED, message);
+    }
+
+    @ExceptionHandler(MenuAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleMenuAccessDeniedException(MenuAccessDeniedException e, HttpServletRequest request) {
+        return buildErrorResponse(e, request, HttpStatus.FORBIDDEN, e.getMessage());
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(Exception e, HttpServletRequest request, HttpStatus status, String message) {

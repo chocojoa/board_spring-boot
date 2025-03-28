@@ -1,4 +1,4 @@
-package com.lollipop.board.common.jwt;
+package com.lollipop.board.setup.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -15,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static com.lollipop.board.common.jwt.JwtUtils.setErrorResponse;
+import static com.lollipop.board.setup.jwt.JwtUtils.setErrorResponse;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

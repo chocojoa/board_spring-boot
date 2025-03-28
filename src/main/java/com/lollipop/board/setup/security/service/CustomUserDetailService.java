@@ -1,4 +1,4 @@
-package com.lollipop.board.common.security.service;
+package com.lollipop.board.setup.security.service;
 
 import com.lollipop.board.admin.user.mapper.UserMapper;
 import com.lollipop.board.admin.user.model.LoginUserDTO;
