@@ -116,7 +116,7 @@
     <!-- 메뉴 삭제 -->
     <delete id="deleteMenu" parameterType="java.lang.Integer">
         DELETE FROM `menu`
-         WHERE id = #{menuId}
+         WHERE id = #{menuId} OR parent_menu_id = #{menuId}
     </delete>
 
     <!-- 네비게이션 메뉴 조회 -->
