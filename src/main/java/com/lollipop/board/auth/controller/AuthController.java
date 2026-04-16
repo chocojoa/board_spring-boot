@@ -37,7 +37,7 @@ public class AuthController {
     /**
      * 토큰 재발행
      *
-     * @param authParam 로그인 정보
+     * @param response 로그인 정보
      * @return 토큰 및 사용자 정보
      */
     @PostMapping("/reissue")
@@ -52,7 +52,7 @@ public class AuthController {
     /**
      * 로그아웃
      *
-     * @param authParam 로그인 정보
+     * @param response 로그인 정보
      * @return 로그아웃 정보
      */
     @PostMapping("/signOut")
@@ -62,6 +62,11 @@ public class AuthController {
         return ResponseEntity.ok().body(ApiResponse.success(null));
     }
 
+    /**
+     * 토큰 쿠키 설정
+     * @param response 응답 객체
+     * @param authDTO 인증 정보 객체
+     */
     private void setTokenCookies(HttpServletResponse response, AuthDTO authDTO) {
         if (authDTO != null && authDTO.getToken() != null) {
             ResponseCookie accessCookie = ResponseCookie.from("accessToken", authDTO.getToken().getAccessToken())
@@ -80,6 +85,10 @@ public class AuthController {
         }
     }
 
+    /**
+     * 토큰 쿠키 삭제
+     * @param response 응답 객체
+     */
     private void clearTokenCookies(HttpServletResponse response) {
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
