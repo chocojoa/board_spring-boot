@@ -9,7 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.servlet.http.Cookie;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.HttpHeaders;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Slf4j
@@ -63,28 +64,38 @@ public class AuthController {
 
     private void setTokenCookies(HttpServletResponse response, AuthDTO authDTO) {
         if (authDTO != null && authDTO.getToken() != null) {
-            Cookie accessCookie = new Cookie("accessToken", authDTO.getToken().getAccessToken());
-            accessCookie.setHttpOnly(true);
-            accessCookie.setPath("/");
-            response.addCookie(accessCookie);
+            ResponseCookie accessCookie = ResponseCookie.from("accessToken", authDTO.getToken().getAccessToken())
+                    .httpOnly(true)
+                    .path("/")
+                    .sameSite("Strict")
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 
-            Cookie refreshCookie = new Cookie("refreshToken", authDTO.getToken().getRefreshToken());
-            refreshCookie.setHttpOnly(true);
-            refreshCookie.setPath("/");
-            response.addCookie(refreshCookie);
+            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", authDTO.getToken().getRefreshToken())
+                    .httpOnly(true)
+                    .path("/")
+                    .sameSite("Strict")
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         }
     }
 
     private void clearTokenCookies(HttpServletResponse response) {
-        Cookie accessCookie = new Cookie("accessToken", "");
-        accessCookie.setPath("/");
-        accessCookie.setMaxAge(0);
-        response.addCookie(accessCookie);
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 
-        Cookie refreshCookie = new Cookie("refreshToken", "");
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(0);
-        response.addCookie(refreshCookie);
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
     }
 
     /**
