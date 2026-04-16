@@ -7,7 +7,7 @@
 
 - aws open jdk 21
 - spring boot
-- spring security + JWT
+- spring security + JWT (HttpOnly Cookie 기반 인증 적용)
 - mybatis
 
 # 필요 프로그램
