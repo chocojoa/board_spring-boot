@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Slf4j
 @RestController
@@ -25,8 +27,9 @@ public class AuthController {
      * @return 토큰 및 사용자 정보
      */
     @PostMapping("/signIn")
-    public ResponseEntity<ApiResponse<AuthDTO>> signIn(@RequestBody AuthParam authParam) {
+    public ResponseEntity<ApiResponse<AuthDTO>> signIn(@RequestBody AuthParam authParam, HttpServletResponse response) {
         AuthDTO authDTO = authService.signIn(authParam);
+        setTokenCookies(response, authDTO);
         return ResponseEntity.ok().body(ApiResponse.success(authDTO));
     }
 
@@ -37,8 +40,11 @@ public class AuthController {
      * @return 토큰 및 사용자 정보
      */
     @PostMapping("/reissue")
-    public ResponseEntity<ApiResponse<AuthDTO>> refreshToken(@RequestBody AuthParam authParam) {
+    public ResponseEntity<ApiResponse<AuthDTO>> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshTokenString, HttpServletResponse response) {
+        AuthParam authParam = new AuthParam();
+        authParam.setRefreshToken(refreshTokenString);
         AuthDTO authDTO = authService.reissue(authParam);
+        setTokenCookies(response, authDTO);
         return ResponseEntity.ok().body(ApiResponse.success(authDTO));
     }
 
@@ -49,9 +55,36 @@ public class AuthController {
      * @return 로그아웃 정보
      */
     @PostMapping("/signOut")
-    public ResponseEntity<ApiResponse<Void>> signOut(@RequestBody AuthParam authParam) {
-        authService.signOut(authParam);
+    public ResponseEntity<ApiResponse<Void>> signOut(@CookieValue(value = "refreshToken", required = false) String refreshTokenString, HttpServletResponse response) {
+        authService.signOut(refreshTokenString);
+        clearTokenCookies(response);
         return ResponseEntity.ok().body(ApiResponse.success(null));
+    }
+
+    private void setTokenCookies(HttpServletResponse response, AuthDTO authDTO) {
+        if (authDTO != null && authDTO.getToken() != null) {
+            Cookie accessCookie = new Cookie("accessToken", authDTO.getToken().getAccessToken());
+            accessCookie.setHttpOnly(true);
+            accessCookie.setPath("/");
+            response.addCookie(accessCookie);
+
+            Cookie refreshCookie = new Cookie("refreshToken", authDTO.getToken().getRefreshToken());
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setPath("/");
+            response.addCookie(refreshCookie);
+        }
+    }
+
+    private void clearTokenCookies(HttpServletResponse response) {
+        Cookie accessCookie = new Cookie("accessToken", "");
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge(0);
+        response.addCookie(accessCookie);
+
+        Cookie refreshCookie = new Cookie("refreshToken", "");
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0);
+        response.addCookie(refreshCookie);
     }
 
     /**

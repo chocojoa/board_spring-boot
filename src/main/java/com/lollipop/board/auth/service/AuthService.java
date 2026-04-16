@@ -127,8 +127,14 @@ public class AuthService {
         return false;
     }
 
-    public void signOut(AuthParam authParam) {
-        String username = jwtTokenProvider.extractUsername(authParam.getRefreshToken());
-        redisDAO.deleteValues("token_" + username);
+    public void signOut(String refreshToken) {
+        if (refreshToken != null) {
+            try {
+                String username = jwtTokenProvider.extractUsername(refreshToken);
+                redisDAO.deleteValues("token_" + username);
+            } catch (Exception e) {
+                log.warn("signOut 시 토큰 추출 실패 또는 이미 만료됨: {}", e.getMessage());
+            }
+        }
     }
 }
