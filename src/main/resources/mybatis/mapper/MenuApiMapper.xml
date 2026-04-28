@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lollipop.board.common.mapper.MenuApiMapper">
+
+    <select id="selectMenuApiList" parameterType="java.lang.String" resultType="menuApiDTO">
+        SELECT mr.menu_id AS menuId
+             , ma.api_url AS apiUrl
+          FROM `user` u
+         INNER JOIN `user_role` ur ON u.id = ur.user_id
+         INNER JOIN `role` r ON ur.role_id = r.id
+         INNER JOIN `menu_role` mr ON r.id = mr.role_id
+         INNER JOIN `menu_api` ma ON mr.menu_id = ma.menu_id
+         WHERE u.email = #{email}
+         ORDER BY mr.menu_id
+    </select>
+
+</mapper>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lollipop.board.admin.menu.mapper.MenuMapper">
+
+    <select id="selectMenus" resultType="menuDTO">
+        WITH RECURSIVE cte AS (
+            SELECT m.id                 AS menu_id
+                 , m.menu_name          AS menu_name
+                 , m.parent_menu_id     AS parent_menu_id
+                 , 1                    AS `depth`
+                 , m.sort_order         AS sort_order
+                 , m.menu_url           AS menu_url
+                 , m.icon               AS icon
+                 , m.id                 AS group_id
+              FROM `menu` M
+             WHERE parent_menu_id = 0
+               AND usage_status = true
+             UNION ALL
+            SELECT m2.id                AS menu_id
+                 , m2.menu_name         AS menu_name
+                 , m2.parent_menu_id    AS parent_menu_id
+                 , cte.`depth` + 1      AS `depth`
+                 , m2.sort_order        AS sort_order
+                 , m2.menu_url          AS menu_url
+                 , m2.icon              AS icon
+                 , cte.group_id         AS group_id
+              FROM `menu` m2
+             INNER JOIN `cte` cte ON m2.parent_menu_id = cte.menu_id
+             WHERE M2.USAGE_STATUS = true
+        )
+        SELECT c.menu_id            AS menuid
+             , c.menu_name          AS menuname
+             , c.parent_menu_id     AS parentmenuid
+             , c.group_id           AS groupid
+             , c.`depth`            AS depth
+             , c.sort_order         AS sortorder
+             , c.menu_url           AS menuurl
+             , c.icon               AS icon
+             , (SELECT COUNT(*)
+                  FROM `menu`
+                 WHERE parent_menu_id = c.menu_id) AS childCount
+          FROM cte c
+         ORDER BY c.parent_menu_id, c.`depth`, c.sort_order, c.menu_name
+    </select>
+
+    <!-- 메뉴 상세조회 -->
+    <select id="selectMenuById" parameterType="java.lang.Integer" resultType="menuDTO">
+        SELECT id                       AS menuid
+             , menu_name                AS menuname
+             , parent_menu_id           AS parentmenuid
+             , IFNULL(menu_url, '')     AS menuurl
+             , sort_order               AS sortorder
+             , usage_status             AS usagestatus
+             , is_displayed             AS isdisplayed
+             , IFNULL(icon, '')         AS icon
+          FROM `menu`
+         WHERE id = #{menuId}
+    </select>
+
+    <!-- 메뉴 저장 -->
+    <insert id="insertMenu" parameterType="menuDTO">
+        INSERT INTO `menu`
+            (
+              menu_name
+            , menu_url
+            , parent_menu_id
+            , sort_order
+            , usage_status
+            , is_displayed
+            , icon
+            , created_by
+            , created_at
+            ) VALUES (
+              #{menuName}
+            , #{menuUrl}
+            , #{parentMenuId}
+            , #{sortOrder}
+            , #{usageStatus}
+            , #{isDisplayed}
+            , #{icon}
+            , #{userId}
+            , NOW()
+            )
+    </insert>
+
+    <!-- 메뉴 수정 -->
+    <update id="updateMenu" parameterType="menuDTO">
+        UPDATE `menu`
+        <set>
+            <if test="menuName != '' and menuName != null">
+              , menu_name        = #{menuName}
+            </if>
+            <if test="menuUrl != '' and menuUrl != null">
+              , menu_url         = #{menuUrl}
+            </if>
+              , parent_menu_id   = #{parentMenuId}
+            <if test="sortOrder != '' and sortOrder != null">
+              , sort_order       = #{sortOrder}
+            </if>
+            <if test="usageStatus != '' and usageStatus != null">
+              , usage_status     = #{usageStatus}
+            </if>
+            <if test="isDisplayed != '' and isDisplayed != null">
+              , is_displayed     = #{isDisplayed}
+            </if>
+            <if test="usageStatus != '' and usageStatus != null">
+              , icon             = #{icon}
+            </if>
+              , modified_by      = #{userId}
+              , modified_at      = NOW()
+        </set>
+         WHERE id = #{menuId}
+    </update>
+
+    <!-- 메뉴 삭제 -->
+    <delete id="deleteMenu" parameterType="java.lang.Integer">
+        DELETE FROM `menu`
+         WHERE id = #{menuId} OR parent_menu_id = #{menuId}
+    </delete>
+
+    <!-- 네비게이션 메뉴 조회 -->
+    <select id="selectBreadcrumbs" parameterType="java.lang.String" resultType="menuDTO">
+        WITH RECURSIVE cte AS (
+            SELECT m.id                 AS menu_id
+                 , m.menu_name          AS menu_name
+                 , m.parent_menu_id     AS parent_menu_id
+                 , m.menu_url           AS menu_url
+              FROM menu m
+             WHERE m.menu_name = #{menuname}
+               AND usage_status = true
+             UNION ALL
+            SELECT m2.id                AS menu_id
+                 , m2.menu_name         AS menu_name
+                 , m2.parent_menu_id    AS parent_menu_id
+                 , m2.menu_url          AS menu_url
+              FROM `menu` m2
+             INNER JOIN `cte` cte ON m2.id = cte.parent_menu_id
+             WHERE m2.usage_status = true
+        )
+        SELECT c.menu_id            AS menuid
+             , c.menu_name          AS menuname
+             , c.menu_url           AS menuurl
+          FROM cte c
+         ORDER BY c.parent_menu_id, c.menu_id
+    </select>
+
+</mapper>

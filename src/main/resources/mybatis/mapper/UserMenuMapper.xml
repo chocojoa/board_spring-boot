@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lollipop.board.common.mapper.UserMenuMapper">
+
+    <select id="selectUserMenuList" parameterType="java.lang.Integer" resultType="userMenuDTO">
+        SELECT c.menu_id            AS menuId
+             , c.menu_name          AS menuName
+             , c.parent_menu_id     AS parentMenuId
+             , c.menu_url           AS menuUrl
+             , c.sort_order         AS sortOrder
+             , c.icon               AS icon
+             , c.is_displayed       AS isDisplayed
+             , (SELECT COUNT(*)
+                FROM `menu`
+                WHERE parent_menu_id = c.menu_id) AS childCount
+        FROM (
+              SELECT m.id                   AS menu_id
+                   , MAX(m.menu_name)       AS menu_name
+                   , MAX(m.parent_menu_id)  AS parent_menu_id
+                   , MAX(m.menu_url)        AS menu_url
+                   , MAX(m.sort_order)      AS sort_order
+                   , MAX(m.is_displayed)    AS is_displayed
+                   , MAX(m.icon)            AS icon
+                FROM `menu` m
+               INNER JOIN `menu_role` mr ON m.id = mr.menu_id
+               INNER JOIN `user_role` ur ON mr.role_id = ur.role_id
+               WHERE m.usage_status = true
+                 AND ur.user_id = #{userId}
+               GROUP BY m.id
+              ) c
+       ORDER BY c.parent_menu_id, c.sort_order, c.menu_id
+    </select>
+
+</mapper>

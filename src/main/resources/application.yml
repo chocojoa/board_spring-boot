@@ -1,0 +1,16 @@
+mybatis:
+  config-location: classpath:/mybatis/mybatis-config.xml
+  mapper-locations: classpath:/mybatis/mapper/**/*.xml
+  type-aliases-package: com.lollipop.board
+
+jwt:
+  accessTokenExpirationTime: ${JWT_ACCESS_TOKEN_EXPIRATION:3600}
+  refreshTokenExpirationTime: ${JWT_REFRESH_TOKEN_EXPIRATION:864000}
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  datasource:
+    driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
